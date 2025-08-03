@@ -1,8 +1,10 @@
-# Firefly III
+# Personal Finance Manager Service
+
+## Firefly III
 
 - [Official Site](https://www.firefly-iii.org/)
 
-## Deployment
+### Deployment
 
 - [Deployment documentation](https://docs.firefly-iii.org/how-to/firefly-iii/installation/docker/)
 
