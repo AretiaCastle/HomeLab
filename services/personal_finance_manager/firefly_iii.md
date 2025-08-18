@@ -10,17 +10,8 @@
 
 Docker compose file and environments files are provided by the software owner.
 
-Download the docker compose:
-
-```sh
-wget https://raw.githubusercontent.com/firefly-iii/docker/main/docker-compose.yml -O docker-compose.yml
-```
-
-Download environments:
-
-```sh
-wget https://raw.githubusercontent.com/firefly-iii/firefly-iii/main/.env.example -O .env.example
-wget https://raw.githubusercontent.com/firefly-iii/docker/main/database.env -O .db.env.example
+```shell
+sudo docker compose up -d
 ```
 
 ### Backup and restore
