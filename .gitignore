@@ -10,3 +10,8 @@ venv.bak/
 
 # Editors and IDEs
 .idea/
+
+# Services
+## Personal finance manager
+services/personal_finance_manager/firefly_backups/*
+!services/personal_finance_manager/firefly_backups/.placeholder
