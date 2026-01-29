@@ -1,0 +1,20 @@
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      # DNS Ports
+      - "53:53/tcp"
+      - "53:53/udp"
+      # Default HTTP Port
+      - "80:80/tcp"
+      # Default HTTPs Port. FTL will generate a self-signed certificate
+      - "443:443/tcp"
+    environment:
+      TZ: '${TZ}'
+      FTLCONF_webserver_api_password: '${FTLCONF_webserver_api_password}'
+      FTLCONF_dns_listeningMode: 'ALL'
+    volumes:
+      - '${HOST_PIHOLE_STORAGE}:/etc/pihole'
+    restart: unless-stopped
