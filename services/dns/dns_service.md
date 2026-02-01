@@ -10,7 +10,7 @@ network level.
 - [Official Docker installation documentation](https://github.com/pi-hole/docker-pi-hole)
 
 One the service is ready you can access the admin interface at
-`http://localhost:/admin`
+`http://localhost/admin`
 
 ### Metal Deployment
 
