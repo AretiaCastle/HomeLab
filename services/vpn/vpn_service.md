@@ -119,16 +119,38 @@ servicio incluyendo lo siguiente en cada caso. Recuerda cambiar
 `INTERFACE_NAME` por el nombre de la interfaz por la que se va a dirigir el
 tráfico.
 
-- Campo `PostUp`
+Campo `PostUp`, sustituir el campo `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`
 
 ```shell
-iptables -A FORWARD -i VPN -j ACCEPT; iptables -t nat -A POSTROUTING -o INTERFACE_NAME -j MASQUERADE
+iptables -A FORWARD -s <PREFIX> -i <VPN_NAME> -o <MAIN_INTERFACE> -j ACCEPT && iptables -A FORWARD -d <PREFIX> -i <MAIN_INTERFACE> -o <VPN_NAME> -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -A POSTROUTING -s <PREFIX> -o <MAIN_INTERFACE> -j MASQUERADE
 ```
 
-- Campo `PostDown`
+Utilizar esto para copiar y pegar
 
 ```shell
-iptables -D FORWARD -i VPN -j ACCEPT; iptables -t nat -D POSTROUTING -o INTERFACE_NAME -j MASQUERADE
+PREFIX="10.0.0.0/24"
+VPN_NAME="Aretia"
+MAIN_INTERFACE="eth0"
+echo ''
+echo "iptables -A FORWARD -s $PREFIX -i $VPN_NAME -o $MAIN_INTERFACE -j ACCEPT && iptables -A FORWARD -d $PREFIX -i $MAIN_INTERFACE -o $VPN_NAME -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -A POSTROUTING -s $PREFIX -o $MAIN_INTERFACE -j MASQUERADE"
+echo ''
+```
+
+Campo `PostDown`, sustituir el campo `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`
+
+```shell
+iptables -D FORWARD -s <PREFIX> -i <VPN_NAME> -o <MAIN_INTERFACE> -j ACCEPT && iptables -D FORWARD -d <PREFIX> -i <MAIN_INTERFACE> -o <VPN_NAME> -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -D POSTROUTING -s <PREFIX> -o <MAIN_INTERFACE> -j MASQUERADE
+```
+
+Utilizar esto para copiar y pegar
+
+```shell
+PREFIX="10.0.0.0/24"
+VPN_NAME="Aretia"
+MAIN_INTERFACE="eth0"
+echo ''
+echo "iptables -D FORWARD -s $PREFIX -i $VPN_NAME -o $MAIN_INTERFACE -j ACCEPT && iptables -D FORWARD -d $PREFIX -i $MAIN_INTERFACE -o $VPN_NAME -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -D POSTROUTING -s $PREFIX -o $MAIN_INTERFACE -j MASQUERADE"
+echo ''
 ```
 
 ### Actualización
