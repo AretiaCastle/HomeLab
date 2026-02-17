@@ -44,22 +44,6 @@ sudo cat /etc/wireguard/"$HOSTNAME"_private.key | wg pubkey | sudo tee /etc/wire
 sudo nano /etc/wireguard/wg0.conf
 ```
 
-La información a incluir en el documento tiene el siguiente formato. Complete con los parámetros adecuados para su caso.
-
-```text
-[Interface]
-PrivateKey = <clave privada del cliente>
-Address = 10.0.0.1/32
-MTU = 1420
-DNS = 8.8.8.8
-
-[Peer]
-PublicKey = <clave pública servidor>
-AllowedIPs = 0.0.0.0/0
-Endpoint = name.exmaple:51820
-PersistentKeepalive = 21
-```
-
 Una vez configurada la conexión con la VPN se puede establecer con el siguiente comando:
 
 ```shell
@@ -73,6 +57,8 @@ sudo wg-quick down wg0
 ```
 
 #### Android
+
+[!TODO]
 
 ## WGDashboard
 
@@ -96,6 +82,12 @@ Tras la instalación para arranque el servicio:
 
 ```shell
 cd ./WGDashboard/src && ./wgd.sh start
+```
+
+[!TODO] Además configuramos el arranque automático del servicio:
+
+```shell
+echo "Arranque automático del servicio WGDashboard"
 ```
 
 Una vez que el servicio esté listo, puedes acceder a la interfaz de
