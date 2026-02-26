@@ -12,24 +12,28 @@ network level.
 One the service is ready you can access the admin interface at
 `http://localhost/admin`
 
-### Metal Deployment
+### Deployment
+
+#### Bare-metal deployment
 
 ```shell
 curl -sSL https://install.pi-hole.net | bash
 sudo usermod -aG pihole $USER
 ```
 
-### Metal Update
-
-```shell
-pihole -up
-```
-
-### Docker Deployment
+#### Docker Compose deployment
 
 The `docker-compose.yml` file in this directory contains a service definition.
 Remenber to set the environment variables in a `.env` file.
 
 ```shell
 docker compose up -d
+```
+
+### Update
+
+#### Bare-metal update
+
+```shell
+pihole -up
 ```
