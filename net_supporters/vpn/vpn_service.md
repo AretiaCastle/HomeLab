@@ -2,7 +2,9 @@
 
 ## WireGuard
 
-### Instalación Servidor
+### Deployment
+
+#### Bare-metal deployment
 
 - [Documentación oficial instalación](https://www.wireguard.com/install/)
 
@@ -10,63 +12,24 @@
 sudo apt install wireguard
 ```
 
-Habilitar el reenvío de paquetes IP en el sistema operativo:
+Enable IP packet forwarding in the operating system:
 
 ```shell
-sudo nano /etc/sysctl.conf
+sudo sed 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+sudo sysctl -p /etc/sysctl.conf
 ```
 
-Debe agregarse o descomentarse la siguiente línea:
-
-```text
-net.ipv4.ip_forward=1
-```
-
-Una vez instalado WireGuard instalaremos WGDashboard para poder realizar la
-gestión y configuración desde una interfaz web
-
-### Instalación Cliente
-
-#### Linux
-
-- [Documentación oficial instalación](https://www.wireguard.com/install/)
-
-Primero creamos las claves públicas y privadas a utilizar y configuramos la
-interfaz. En el ejemplo la interfaz tiene de nombre `wg0` pero puede utilizarse
-el nombre que se quiera.
-
-```shell
-sudo wg genkey | sudo tee /etc/wireguard/"$HOSTNAME"_private.key 
-sudo cat /etc/wireguard/"$HOSTNAME"_private.key | wg pubkey | sudo tee /etc/wireguard/"$HOSTNAME"_public.key
-```
-
-```shell
-sudo nano /etc/wireguard/wg0.conf
-```
-
-Una vez configurada la conexión con la VPN se puede establecer con el siguiente comando:
-
-```shell
-sudo wg-quick up wg0
-```
-
-La conexión se puede cerrar con el siguiente comando
-
-```shell
-sudo wg-quick down wg0
-```
-
-#### Android
-
-[!TODO]
+Once wireguard is installed we will deploy WGDashboard to manage and configure the VPN from a web interface.
 
 ## WGDashboard
 
-- [Sitio oficial](https://docs.wgdashboard.dev/)
+- [Official website](https://docs.wgdashboard.dev/)
 
-### Instalación
+### Deployment
 
-- [Documentación oficial instalación](https://docs.wgdashboard.dev/install/)
+#### Bare-metal deployment
+
+- [Official installation documentation](https://docs.wgdashboard.dev/install/)
 
 ```shell
 sudo apt-get install git iptables -y && \
@@ -96,28 +59,28 @@ y la contraseña por defecto es `admin`.
 
 ### Configuración
 
-- [Documentación oficial configuración](https://docs.wgdashboard.dev/guides/Add-WireGuard-Configuration.html)
+- [Official configuration guide](https://docs.wgdashboard.dev/guides/Add-WireGuard-Configuration.html)
 
-Asignar a los clientes de la VPN direcciones de la propia red interna puede
-llevar a errores por lo que es recomendable utilizar para estos clientes un
-rango de direcciones privado fuera del que maneja el router o la red a la que se
-accede. Además es posible que el router encargado de la red no permite el
-tráfico de paquetes con destino una IP privada fuera del rango de su red. Por
-estás dos razones puede ser necesario configurar un NAT en la máquina que aloja
-el servicio de VPN.
+Assigning VPN clients addresses from the internal network can lead to errors, so
+it is recommended to use a private address range for these clients outside of
+the one managed by the router or the network being accessed. Additionally, it is
+possible that the router in charge of the network does not allow traffic of
+packets destined for a private IP outside of its network range. For these two
+reasons, it may be necessary to configure NAT on the machine hosting the VPN
+service.
 
-Se requiere realizar una configuración en los campos `PostUp` y `PostDown` del
-servicio incluyendo lo siguiente en cada caso. Recuerda cambiar
-`INTERFACE_NAME` por el nombre de la interfaz por la que se va a dirigir el
-tráfico.
+It is necessary to perform a configuration in the `PostUp` and `PostDown` fields
+of the service including the following in each case. Remember to change
+`INTERFACE_NAME` by the name of the interface through which the traffic will be
+directed.
 
-Campo `PostUp`, sustituir el campo `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`
+Field `PostUp`, substitute the fields `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`.
 
 ```shell
 iptables -A FORWARD -s <PREFIX> -i <VPN_NAME> -o <MAIN_INTERFACE> -j ACCEPT && iptables -A FORWARD -d <PREFIX> -i <MAIN_INTERFACE> -o <VPN_NAME> -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -A POSTROUTING -s <PREFIX> -o <MAIN_INTERFACE> -j MASQUERADE
 ```
 
-Utilizar esto para copiar y pegar
+Execute this command to copy and paste the configuration:
 
 ```shell
 PREFIX="10.0.0.0/24"
@@ -128,13 +91,13 @@ echo "iptables -A FORWARD -s $PREFIX -i $VPN_NAME -o $MAIN_INTERFACE -j ACCEPT &
 echo ''
 ```
 
-Campo `PostDown`, sustituir el campo `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`
+Field `PostDown`, substitute the fields `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`
 
 ```shell
 iptables -D FORWARD -s <PREFIX> -i <VPN_NAME> -o <MAIN_INTERFACE> -j ACCEPT && iptables -D FORWARD -d <PREFIX> -i <MAIN_INTERFACE> -o <VPN_NAME> -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -D POSTROUTING -s <PREFIX> -o <MAIN_INTERFACE> -j MASQUERADE
 ```
 
-Utilizar esto para copiar y pegar
+Execute this command to copy and paste the configuration:
 
 ```shell
 PREFIX="10.0.0.0/24"
@@ -147,8 +110,8 @@ echo ''
 
 ### Actualización
 
-Para actualizar el servicio debemos ejecutar otra vez el script de instalación,
-aunque antes es recomendable actualizar el repositorio local.
+To update the service we must run the installation script again, although before
+it is recommended to update the local repository.
 
 ```shell
 git clone https://github.com/donaldzou/WGDashboard.git && \
@@ -159,4 +122,4 @@ chmod +x ./wgd.sh && \
 
 ## Reinicio de contraseña
 
-- [Instrucciones oficiales](https://docs.wgdashboard.dev/reset-wgdashboard-password.html)
+- [Official instructions](https://docs.wgdashboard.dev/reset-wgdashboard-password.html)

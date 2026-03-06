@@ -10,10 +10,12 @@ services using a consistent domain name.
 
 - [Official Site](https://www.duckdns.org/)
 
-### Installation
+### Deployment
 
-Installation via linux cron. For this you need fisrt cron and curl installed.
-Test it with:
+#### Bare-metal deployment
+
+Installation via linux cron. For this you need first `cron` and `curl`
+installed. Test it with:
 
 ```bash
 ps -ef | grep cr[o]n
@@ -23,7 +25,7 @@ ps -ef | grep cr[o]n
 curl --version
 ```
 
-Now lets install it:
+Now let's install it:
 
 ```bash
 mkdir duckdns
@@ -35,13 +37,15 @@ Copy and paste the following code into `duck.sh`, replacing `your-domain`
 and `your-token` with your actual DuckDNS domain and token:
 
 ```bash
-echo url="https://www.duckdns.org/update?domains=your-domain&token=your-token&ip=" | curl -k -o ~/duckdns/duck.log -K -
+export duckdns_token="your-token"
+export duckdns_domain="your-domain"
+echo url="https://www.duckdns.org/update?domains=${duckdns_domain}&token=${duckdns_token}&ip=" | curl -k -o ~/duckdns/duck.log -K -
 ```
 
 Make the script executable:
 
 ```bash
-chmod 700 duck.sh
+chmod +x duck.sh
 ```
 
 Edit your crontab to run the script every 5 minutes:

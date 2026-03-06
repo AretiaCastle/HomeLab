@@ -26,6 +26,7 @@ docker network ls
 services:
   nginx-proxy-manager:
     image: 'jc21/nginx-proxy-manager:latest'
+    network_mode: "host"
     restart: unless-stopped
     ports:
       - '80:80'
@@ -34,8 +35,6 @@ services:
     volumes:
       - data:/data
       - letsencrypt:/etc/letsencrypt
-    networks:
-      - nginx_network  
 
 volumes:
   data_backup:
@@ -50,10 +49,6 @@ volumes:
         type: none
         o: bind
         device: /mnt/docker_volumes/ingress/letsencrypt
-
-networks:
-  nginx_network:
-    driver: bridge
 ```
 
 ```shell
