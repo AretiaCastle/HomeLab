@@ -12,15 +12,15 @@ services:
       - letsencrypt:/etc/letsencrypt
 
 volumes:
-  data_backup:
+  data:
     driver: local
-      driver_opts:
-        type: none
-        o: bind
-        device: /mnt/docker_volumes/ingress/data
-  letsencrypt_backup:
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/docker_volumes/ingress/data
+  letsencrypt:
     driver: local
-      driver_opts:
-        type: none
-        o: bind
-        device: /mnt/docker_volumes/ingress/letsencrypt
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/docker_volumes/ingress/letsencrypt
