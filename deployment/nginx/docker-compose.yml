@@ -1,7 +1,6 @@
 services:
   nginx-proxy-manager:
     image: 'jc21/nginx-proxy-manager:latest'
-    network_mode: "host"
     restart: unless-stopped
     ports:
       - '80:80'
@@ -24,3 +23,7 @@ volumes:
       type: none
       o: bind
       device: /mnt/docker_volumes/ingress/letsencrypt
+
+networks:
+  ingress:
+    external: true

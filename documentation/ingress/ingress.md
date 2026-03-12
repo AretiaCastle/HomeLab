@@ -11,10 +11,16 @@
 - [Deployment documentation](https://nginxproxymanager.com/setup/)
 
 The deployment with docker compose and this configuration creates a network
-named `nginx_network`. This network must be in all the other services that
+named `ingress`. This network must be in all the other services that
 are deployed with docker and need their traffic to be routed through the proxy.
 If a container it is not in this network, that service could not work with the
 `nginx` deployed.
+
+To create the network if is not already done use:
+
+```shell
+docker network create ingress
+```
 
 In order to list the names of the networks you could use:
 
@@ -22,38 +28,11 @@ In order to list the names of the networks you could use:
 docker network ls
 ```
 
-```yml
-services:
-  nginx-proxy-manager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    network_mode: "host"
-    restart: unless-stopped
-    ports:
-      - '80:80'
-      - '443:443'
-      - '10081:81'
-    volumes:
-      - data:/data
-      - letsencrypt:/etc/letsencrypt
-
-volumes:
-  data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/docker_volumes/ingress/data
-  letsencrypt:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/docker_volumes/ingress/letsencrypt
-```
+Once the network is done use the following command to start the containers of
+the service:
 
 ```shell
-sudo mkdir -p /mnt/docker/ingress/data
-sudo mkdir -p /mnt/docker/ingress/letsencrypt
+docker compose up -d
 ```
 
 This setup produce this ports exposed:
@@ -63,6 +42,14 @@ This setup produce this ports exposed:
 | 80          | 80              | HTTP traffic            |
 | 443         | 443             | HTTPS traffic           |
 | 10081       | 81              | Administration Panel    |
+
+**Storage** of this service is configured to mount in fixed directories. To
+create these directories use:
+
+```shell
+sudo mkdir -p /mnt/docker/ingress/data
+sudo mkdir -p /mnt/docker/ingress/letsencrypt
+```
 
 ### Proxy host configuration
 
@@ -89,3 +76,5 @@ alt="Admin interface image"
 width="350"
 style="display: block; margin: 0 auto;"
 />
+
+---

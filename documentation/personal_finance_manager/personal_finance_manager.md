@@ -6,19 +6,23 @@
 
 ### Deployment
 
+#### Docker Compose
+
 - [Deployment documentation](https://docs.firefly-iii.org/how-to/firefly-iii/installation/docker/)
 
 Docker compose file and environments files are provided by the software owner.
 
 ```shell
-sudo docker compose up -d
+docker compose up -d
 ```
 
 ### Backup and restore
 
+#### Docker Compose
+
 - [Community solution](https://gist.github.com/ddyykk/84bc588d6de1d346fbf473af49c34cf0)
 
-Remenber to run this commands on a user with access to Docker.
+Remember to run this commands on a user with access to Docker.
 
 Make backup.
 
