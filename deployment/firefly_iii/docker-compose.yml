@@ -1,28 +1,30 @@
 services:
-  app:
+  firefly_iii_core:
     image: fireflyiii/core:latest
-    hostname: app
+    hostname: firefly_iii_core
     container_name: firefly_iii_core
     restart: always
-    volumes:
-      - firefly_iii_upload:/var/www/html/storage/upload
     env_file: .env
-    networks:
-      - ingress
     ports:
       - 80:8080
+    volumes:
+      - firefly_iii_upload:/var/www/html/storage/upload
+    networks:
+      - ingress
     depends_on:
       - db
+
   db:
     image: mariadb:lts
     hostname: db
     container_name: firefly_iii_db
     restart: always
     env_file: .db.env
-    networks:
-      - ingress
     volumes:
       - firefly_iii_db:/var/lib/mysql
+    networks:
+      - ingress
+
   cron:
     #
     # To make this work, set STATIC_CRON_TOKEN in your .env file or as an environment variable
@@ -39,7 +41,7 @@ services:
       | crontab - && \
       crond -f -L /dev/stdout"
     networks:
-      - firefly_iii
+      - ingress
     depends_on:
       - app
 

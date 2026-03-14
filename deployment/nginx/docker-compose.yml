@@ -16,13 +16,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/docker_volumes/ingress/data
+      device: /mnt/docker_volumes/ingress/nginx/data
   letsencrypt:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/docker_volumes/ingress/letsencrypt
+      device: /mnt/docker_volumes/ingress/nginx/letsencrypt
 
 networks:
   ingress:
