@@ -32,19 +32,20 @@ Once wireguard is installed we will deploy WGDashboard to manage and configure t
 - [Official installation documentation](https://docs.wgdashboard.dev/install/)
 
 ```shell
-sudo apt-get install git iptables -y && \
-sudo apt-get update && \
-sudo apt install wireguard-tools net-tools && \
+sudo apt install git iptables wireguard-tools net-tools && \
+sudo apt update && \
 git clone https://github.com/donaldzou/WGDashboard.git && \
-cd ./WGDashboard/src && \
-chmod +x ./wgd.sh && \
-./wgd.sh install
+chmod +x ./WGDashboard/src/wgd.sh && \
+sudo mv ./WGDashboard /usr/local/bin/ && \
+cd /usr/local/bin/WGDashboard/src && \
+./wgd.sh install && \
+cd
 ```
 
 Tras la instalación para arranque el servicio:
 
 ```shell
-cd ./WGDashboard/src && ./wgd.sh start
+cd /usr/local/bin/WGDashboard/src/ && ./wgd.sh start && cd
 ```
 
 [!TODO] Además configuramos el arranque automático del servicio:
