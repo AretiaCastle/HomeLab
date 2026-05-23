@@ -13,8 +13,16 @@ services:
       - "443:443/tcp"
     environment:
       TZ: '${TZ}'
+      WEBPASSWORD: '${WEBPASSWORD}'
       FTLCONF_webserver_api_password: '${FTLCONF_webserver_api_password}'
       FTLCONF_dns_listeningMode: 'ALL'
     volumes:
-      - '${HOST_PIHOLE_STORAGE}:/etc/pihole'
+      - ./etc-pihole:/etc/pihole
+      - ./etc-dnsmasq.d:/etc/dnsmasq.d
+    healthcheck:
+      test: ["CMD", "dig", "@127.0.0.1", "pi.hole"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
+    network_mode: host
