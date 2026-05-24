@@ -18,7 +18,7 @@ One the service is ready you can access the admin interface at
 
 ```shell
 curl -sSL https://install.pi-hole.net | bash
-sudo usermod -aG pihole $USER
+sudo usermod -aG pihole "$USER"
 ```
 
 #### Docker Compose deployment
