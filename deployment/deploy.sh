@@ -5,6 +5,7 @@ full_path_to_script="$(realpath "${BASH_SOURCE[0]}")"
 DEPLOYMENT_FOLDER="$(dirname "$full_path_to_script")"
 project_name="AretiaLab"
 
+################################################################################
 
 # Auxiliar functions
 general_setup(){
@@ -16,11 +17,18 @@ docker_compose_deploy(){
     docker compose -p "${project_name}" -f "$DEPLOYMENT_FOLDER/$software_name/docker-compose.yml"/docker-compose.yml up -d
 }
 
+################################################################################
+
 # Deployment functions
 dns_deployment_bare_metal(){
-    #PiHole
+    # PiHole deployment 
     curl -sSL https://install.pi-hole.net | bash
     sudo usermod -aG pihole "$USER"
+
+    # Automated backup
+    mkdir -p "$USER/backups/pihole"
+    echo "30 03     * * *   root    cp -r /etc/pihole $USER/backups/pihole/pihole" | sudo tee -a /etc/crontab
+    echo "00 04     * * *   root    cp -r /etc/dnsmasq.d /home/$USER/backups/pihole/dnsmasq.d" | sudo tee -a /etc/crontab
 }
 
 dns_deployment_docker(){
