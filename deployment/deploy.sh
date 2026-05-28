@@ -26,14 +26,18 @@ dns_deployment_bare_metal(){
     sudo usermod -aG pihole "$USER"
 
     # Automated backup
-    mkdir -p "$USER/backups/pihole"
-    echo "30 03     * * *   root    cp -r /etc/pihole $USER/backups/pihole/pihole" | sudo tee -a /etc/crontab
-    echo "00 04     * * *   root    cp -r /etc/dnsmasq.d /home/$USER/backups/pihole/dnsmasq.d" | sudo tee -a /etc/crontab
+    pihole_config_backup_folder_path="/home/$USER/services/backups/pihole" 
+    mkdir -p "$pihole_config_backup_folder_path"
+    # Backup every day at 03:30 and 04:00
+    echo "30 03     * * *   root    cp -r /etc/pihole $pihole_config_backup_folder_path/pihole" | sudo tee -a /etc/crontab
+    echo "00 04     * * *   root    cp -r /etc/dnsmasq.d $pihole_config_backup_folder_path/dnsmasq.d" | sudo tee -a /etc/crontab
 }
 
 dns_deployment_docker(){
     #PiHole
     docker_compose_deploy "pihole"
+
+    # TODO: backup automation
 }
 
 # ingress
