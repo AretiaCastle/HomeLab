@@ -50,6 +50,30 @@ check_commands_installed(){
     return 0
 }
 
+load_env(){
+    local env_file="$BASE_FOLDER/.env"
+    
+    if [[ ! -f "$env_file" ]]; then
+        echo "WARNING: .env file not found at $env_file" >&2
+        echo "Please copy .env.example to .env and fill in your secrets." >&2
+        return 1
+    fi
+    
+    # Load environment variables from .env file
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+        
+        # Export variables (format: KEY=VALUE)
+        if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+            export "${BASH_REMATCH[1]}=${BASH_REMATCH[2]}"
+        fi
+    done < "$env_file"
+    
+    echo "Environment variables loaded from $env_file"
+    return 0
+}
+
 ################################################################################
 
 # Deployment functions
@@ -88,6 +112,32 @@ dns_deployment_docker(){
     # TODO: backup automation
 }
 
+ddns_duckdns_deployment_bare_metal(){
+    # Validate required variables
+    if [[ -z "$duckdns_domain" || -z "$duckdns_token" ]]; then
+        echo "ERROR: duckdns_domain and duckdns_token must be set in .env file" >&2
+        return 1
+    fi
+    
+    duckdns_deployment_folder_path="$HOME/duckdns"
+    mkdir -p "$duckdns_deployment_folder_path"
+    
+    echo "echo url=\"https://www.duckdns.org/update?domains=${duckdns_domain}&token=${duckdns_token}&ip=\" | curl -k -o $duckdns_deployment_folder_path/duck.log -K -" > "$duckdns_deployment_folder_path/duck.sh"
+    chmod +x "$duckdns_deployment_folder_path/duck.sh"
+
+    # Create cron task - update IP every 5 minutes
+    cron_file="/etc/crontab"
+    cron_header="# Duck DNS IP update"
+    cron_task="*/5 *    * * *   $USER    $duckdns_deployment_folder_path/duck.sh >/dev/null 2>&1"
+
+    if ! sudo grep -Fqx "$cron_header" "$cron_file"; then
+        echo "$cron_header" | sudo tee -a "$cron_file" > /dev/null
+    fi
+    if ! sudo grep -Fqx "$cron_task" "$cron_file"; then
+        echo "$cron_task" | sudo tee -a "$cron_file" > /dev/null
+    fi
+}
+
 # ingress
 ingress_deployment_docker(){
     # nginx Ingress
@@ -118,3 +168,4 @@ torrent_deployment(){
 ################################################################################
 
 # General Execution
+load_env
