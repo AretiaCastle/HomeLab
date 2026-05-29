@@ -1,0 +1,4 @@
+curl
+docker
+git
+cron
