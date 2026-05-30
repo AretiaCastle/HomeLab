@@ -112,7 +112,7 @@ dns_deployment_docker(){
     # TODO: backup automation
 }
 
-ddns_duckdns_deployment_bare_metal(){
+external_ddns_deployment_bare_metal(){
     # Validate required variables
     if [[ -z "$duckdns_domain" || -z "$duckdns_token" ]]; then
         echo "ERROR: duckdns_domain and duckdns_token must be set in .env file" >&2
@@ -136,6 +136,21 @@ ddns_duckdns_deployment_bare_metal(){
     if ! sudo grep -Fqx "$cron_task" "$cron_file"; then
         echo "$cron_task" | sudo tee -a "$cron_file" > /dev/null
     fi
+}
+
+vpn_deployment_bare_metal(){
+    # Wireguard setup
+    if ! command -v "wireguard" &> /dev/null; then
+        echo "Needs to install wireguard."
+        return 0
+    fi
+
+    # Enable packet forwarding  
+    sudo sed 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+    sudo sysctl -p /etc/sysctl.conf
+
+    #WGDashboard setup
+    
 }
 
 # ingress
