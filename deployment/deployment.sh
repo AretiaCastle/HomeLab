@@ -3,19 +3,66 @@
 # Constants
 full_path_to_script="$(realpath "${BASH_SOURCE[0]}")"
 BASE_FOLDER="$(dirname "$full_path_to_script")"
-DEPLOYMENT_FOLDER="$BASE_FOLDER/deployments"
+DEPLOYMENT_FOLDER="$BASE_FOLDER/deployment"
 project_name="AretiaLab"
 
-################################################################################
+BASE_DEVELOPMENT_PATH="$HOME/devops"
+DEPLOYMENTS_BASE_PATH="$BASE_DEVELOPMENT_PATH/deployments"
+DEPLOYMENTS_VOLUMES_PATH="$DEPLOYMENTS_BASE_PATH/volumes"
 
+################################################################################
 # Auxiliar functions
-general_setup(){
-    sudo mkdir -p "$USER/docker/volumes"
+
+##
+# @Description
+# Import all the scripts recursively from the objective folder
+# @Parameters
+# $1 Directory to import scripts from
+##
+import_from_dir() {
+    directory="$1"
+    # shellcheck disable=SC1090
+    for file in $( find "$directory" -type f -name "*.sh" -print | sort ); 
+    do
+        source "$file"
+    done
 }
 
-docker_compose_deploy(){
-    software_name="$1"
-    docker compose -p "${project_name}" -f "$DEPLOYMENT_FOLDER/$software_name/docker-compose.yml" up -d
+load_env(){
+    local env_file="$BASE_FOLDER/.env"
+    
+    if [[ ! -f "$env_file" ]]; then
+        echo "WARNING: .env file not found at $env_file" >&2
+        echo "Please copy .env.example to .env and fill in your secrets." >&2
+        return 1
+    fi
+    
+    # Load environment variables from .env file
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+        
+        # Export variables (format: KEY=VALUE)
+        if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+            export "${BASH_REMATCH[1]}=${BASH_REMATCH[2]}"
+        fi
+    done < "$env_file"
+    
+    echo "Environment variables loaded from $env_file"
+    return 0
+}
+
+general_setup(){
+    sudo mkdir -p "$DEPLOYMENTS_VOLUMES_PATH"
+}
+
+check_command_installed(){
+    command="$1"
+
+    if ! command -v "$cmd" &> /dev/null; then
+        echo "Command $command not installed"
+        return 0
+    fi
 }
 
 check_commands_installed(){
@@ -50,54 +97,16 @@ check_commands_installed(){
     return 0
 }
 
-load_env(){
-    local env_file="$BASE_FOLDER/.env"
-    
-    if [[ ! -f "$env_file" ]]; then
-        echo "WARNING: .env file not found at $env_file" >&2
-        echo "Please copy .env.example to .env and fill in your secrets." >&2
-        return 1
-    fi
-    
-    # Load environment variables from .env file
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Skip empty lines and comments
-        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-        
-        # Export variables (format: KEY=VALUE)
-        if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
-            export "${BASH_REMATCH[1]}=${BASH_REMATCH[2]}"
-        fi
-    done < "$env_file"
-    
-    echo "Environment variables loaded from $env_file"
-    return 0
-}
-
-################################################################################
-
-# ingress
-
-
-personal_finance_manager_deployment_docker(){
-    # Fireflyiii
-    sudo mkdir -p /mnt/docker_volumes/firefly_iii/upload
-    sudo mkdir -p /mnt/docker_volumes/firefly_iii/db
-    docker compose -p "${project_name}" -f firefly_iii/docker-compose.yml up -d
-}
-
-torrent_deployment(){
-    ## qBittorrent
-
-    ## jackett
-
-    ## sonarr
-
-    ## radarr
-    echo "TODO: Torrent service deployment"
+docker_compose_deploy(){
+    software_name="$1"
+    docker compose -p "${project_name}" -f "$DEPLOYMENT_FOLDER/$software_name/docker-compose.yml" up -d
 }
 
 ################################################################################
 
 # General Execution
+import_from_dir "$DEPLOYMENT_FOLDER"
 load_env
+general_setup
+
+# Services deployment
