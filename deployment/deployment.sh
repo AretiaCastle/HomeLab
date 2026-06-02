@@ -61,7 +61,7 @@ check_command_installed(){
 
     if ! command -v "$command" &> /dev/null; then
         echo "Command $command not installed"
-        return 0
+        return 1
     fi
 }
 
