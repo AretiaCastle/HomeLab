@@ -59,9 +59,9 @@ general_setup(){
 check_command_installed(){
     command="$1"
 
-    if ! command -v "$cmd" &> /dev/null; then
+    if ! command -v "$command" &> /dev/null; then
         echo "Command $command not installed"
-        return 0
+        return 1
     fi
 }
 
