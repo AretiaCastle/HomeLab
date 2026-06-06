@@ -6,7 +6,7 @@
 # Variables
 PROJECT_NAME := AretiaLab
 BASE_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-DEPLOYMENT_DIR := $(BASE_DIR)/deployment
+SERVICES_DIR := $(BASE_DIR)/services
 ENV_FILE := $(BASE_DIR)/.env
 LOG_DIR := $(BASE_DIR)/logs
 LOG_FILE := $(LOG_DIR)/deployment-$(shell date +%Y%m%d).log
@@ -57,7 +57,7 @@ endef
 define deploy_service
 	@$(call log,Deploying $(1)...)
 	@$(load_env); \
-	cd $(DEPLOYMENT_DIR)/$(2) && \
+	cd $(SERVICES_DIR)/$(2) && \
 	docker compose -p $(PROJECT_NAME) up -d && \
 	$(call log,✓ $(1) deployed successfully)
 endef
@@ -139,10 +139,10 @@ logs-tail:
 
 stop:
 	@$(call log,Stopping all services...)
-	@find $(DEPLOYMENT_DIR) -name "docker-compose.yml" -type f -execdir docker compose -p $(PROJECT_NAME) stop \;
+	@find $(SERVICES_DIR) -name "docker-compose.yml" -type f -execdir docker compose -p $(PROJECT_NAME) stop \;
 	@$(call log,✓ Services stopped)
 
 clean:
 	@$(call log,Stopping and cleaning containers...)
-	@find $(DEPLOYMENT_DIR) -name "docker-compose.yml" -type f -execdir docker compose -p $(PROJECT_NAME) down \;
+	@find $(SERVICES_DIR) -name "docker-compose.yml" -type f -execdir docker compose -p $(PROJECT_NAME) down \;
 	@$(call log,✓ Cleanup completed)
