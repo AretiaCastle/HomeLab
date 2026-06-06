@@ -1,0 +1,148 @@
+.PHONY: help check \ 
+		deploy-all deploy-network deploy-media deploy-finance \
+        dns ingress vpn torrent pfm \
+        status logs logs-all logs-tail logs-dns logs-ingress logs-vpn logs-torrent logs-pfm stop clean
+
+# Variables
+PROJECT_NAME := AretiaLab
+BASE_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+DEPLOYMENT_DIR := $(BASE_DIR)/deployment
+ENV_FILE := $(BASE_DIR)/.env
+LOG_DIR := $(BASE_DIR)/logs
+LOG_FILE := $(LOG_DIR)/deployment-$(shell date +%Y%m%d).log
+
+# Logging function
+define log
+	mkdir -p $(LOG_DIR); \
+	echo "[$(shell date '+%Y-%m-%d %H:%M:%S')] $(1)" | tee -a $(LOG_FILE)
+endef
+
+# Default target
+help:
+	@cat $(BASE_DIR)/help.txt
+
+# Check requirements
+check:
+	@$(call log,Checking requirements...)
+	@if [ ! -f "$(ENV_FILE)" ]; then \
+		$(call log,ERROR: .env file not found); \
+		$(call log,Please copy .env.example to .env and configure your secrets); \
+		exit 1; \
+	fi
+	@if [ ! -f "requirements.txt" ]; then \
+		$(call log,WARNING: requirements.txt not found); \
+	else \
+		$(call log,Checking required commands...); \
+		while IFS= read -r cmd || [ -n "$$cmd" ]; do \
+			[ -z "$$cmd" ] || echo "$$cmd" | grep -q "^#" && continue; \
+			cmd=$$(echo "$$cmd" | xargs); \
+			if ! command -v "$$cmd" >/dev/null 2>&1; then \
+				$(call log,✗ $$cmd is not installed); \
+				exit 1; \
+			else \
+				$(call log,✓ $$cmd); \
+			fi; \
+		done < requirements.txt; \
+	fi
+	@$(call log,All requirements satisfied)
+
+# Load environment variables from .env file
+define load_env
+	set -a; \
+	[ -f "$(ENV_FILE)" ] && . "$(ENV_FILE)"; \
+	set +a
+endef
+
+# Load environment and execute deployment
+define deploy_service
+	@$(call log,Deploying $(1)...)
+	@$(load_env); \
+	cd $(DEPLOYMENT_DIR)/$(2) && \
+	docker compose -p $(PROJECT_NAME) up -d && \
+	$(call log,✓ $(1) deployed successfully)
+endef
+
+# Individual services
+dns: check
+	$(call deploy_service,PiHole DNS,dns/pihole)
+
+ingress: check
+	@$(call log,Preparing volumes for Nginx...)
+	@sudo mkdir -p /mnt/docker_volumes/ingress/nginx/data
+	@sudo mkdir -p /mnt/docker_volumes/ingress/nginx/letsencrypt
+	@docker network create ingress 2>/dev/null || true
+	$(call deploy_service,Nginx Ingress,ingress/nginx)
+
+vpn: check
+	$(call deploy_service,Wireguard,vpn/wireguard)
+	$(call deploy_service,WG Dashboard,vpn/wgdashboard)
+
+torrent: check
+	@$(call log,Deploying Torrent stack...)
+	$(call deploy_service,qBittorrent,torrent/qBittorrent)
+	$(call deploy_service,Jackett,torrent/jackett)
+	$(call deploy_service,Sonarr,torrent/sonarr)
+	$(call deploy_service,Radarr,torrent/radarr)
+
+pfm: check
+	$(call deploy_service,Firefly III,personal_finance_manager/firefly_iii)
+
+# Predefined groups
+deploy-network: dns ingress vpn
+	@$(call log,✓ Network group deployed successfully)
+
+deploy-media: torrent
+	@$(call log,✓ Media group deployed successfully)
+
+deploy-finance: pfm
+	@$(call log,✓ Finance group deployed successfully)
+
+# Deploy all services
+deploy-all: check deploy-network deploy-media deploy-finance
+	@$(call log,✓ All services deployed successfully)
+
+# Management commands
+status:
+	@$(call log,Container status:)
+	@docker compose -p $(PROJECT_NAME) ps
+
+logs:
+	@if [ -z "$(SERVICE)" ]; then \
+		$(call log,ERROR: Specify SERVICE=<name>); \
+		echo "Example: make logs SERVICE=nginx"; \
+		exit 1; \
+	fi
+	@docker compose -p $(PROJECT_NAME) logs -f $(SERVICE)
+
+# Logs shortcuts
+logs-dns: SERVICE=pihole
+logs-dns: logs
+
+logs-ingress: SERVICE=nginx
+logs-ingress: logs
+
+logs-vpn: SERVICE=wireguard
+logs-vpn: logs
+
+logs-torrent: SERVICE=qbittorrent
+logs-torrent: logs
+
+logs-pfm: SERVICE=firefly
+logs-pfm: logs
+
+# Logs utilities
+logs-all:
+	@docker compose -p $(PROJECT_NAME) logs -f
+
+logs-tail:
+	@docker compose -p $(PROJECT_NAME) logs --tail=$${LINES:-50} $(SERVICE)
+
+stop:
+	@$(call log,Stopping all services...)
+	@find $(DEPLOYMENT_DIR) -name "docker-compose.yml" -type f -execdir docker compose -p $(PROJECT_NAME) stop \;
+	@$(call log,✓ Services stopped)
+
+clean:
+	@$(call log,Stopping and cleaning containers...)
+	@find $(DEPLOYMENT_DIR) -name "docker-compose.yml" -type f -execdir docker compose -p $(PROJECT_NAME) down \;
+	@$(call log,✓ Cleanup completed)

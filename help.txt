@@ -1,0 +1,32 @@
+HomeLab Deployment Makefile
+
+Available targets:
+  make check          - Check system requirements
+  make deploy-all     - Deploy all services
+
+Predefined groups:
+  make deploy-network - Deploy DNS + Ingress + VPN
+  make deploy-media   - Deploy Torrent services (Sonarr, Radarr, etc.)
+  make deploy-finance - Deploy Personal Finance Manager
+
+Individual services:
+  make dns            - Deploy PiHole
+  make ingress        - Deploy Nginx
+  make vpn            - Deploy Wireguard + WG Dashboard
+  make torrent        - Deploy torrent stack
+  make pfm            - Deploy Firefly III
+
+Management:
+  make status         - View container status
+  make logs SERVICE=<name> - View service logs (with follow)
+  make logs-all       - View all services logs
+  make logs-tail SERVICE=<name> LINES=50 - View last N lines
+  make logs-dns       - View PiHole logs
+  make logs-ingress   - View Nginx logs
+  make logs-vpn       - View Wireguard logs
+  make logs-torrent   - View qBittorrent logs
+  make logs-pfm       - View Firefly III logs
+  make stop           - Stop all services
+  make clean          - Stop and clean containers
+
+Note: Deployment logs are saved in logs/deployment-YYYYMMDD.log
