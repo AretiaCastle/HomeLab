@@ -8,14 +8,13 @@ pihole_baremetal_deployment(){
     sudo usermod -aG pihole "$USER"
 
     # Automated backup
-    pihole_backup_folder_path="/home/$USER/devops/deployments/backups/pihole"
-    mkdir -p "$pihole_backup_folder_path"
+    mkdir -p "$PIHOLE_BACKUP_PATH"
 
     # Backup every day at 03:30 and 04:00
     cron_file="/etc/crontab"
     cron_header="# Pihole DNS backup tasks"
-    cron_pihole="30 03     * * *   root    cp -r /etc/pihole $pihole_backup_folder_path/pihole"
-    cron_dnsmasq="00 04     * * *   root    cp -r /etc/dnsmasq.d $pihole_backup_folder_path/dnsmasq.d"
+    cron_pihole="30 03     * * *   root    cp -r /etc/pihole $PIHOLE_BACKUP_PATH/pihole"
+    cron_dnsmasq="00 04     * * *   root    cp -r /etc/dnsmasq.d $PIHOLE_BACKUP_PATH/dnsmasq.d"
 
     if ! sudo grep -Fqx "$cron_header" "$cron_file"; then
         echo "$cron_header" | sudo tee -a "$cron_file" > /dev/null
@@ -28,7 +27,8 @@ pihole_baremetal_deployment(){
     fi
 }
 
-pihole_dokcer_deployment(){
+# TODO: Deployment of Pihole with Docker
+pihole_docker_deployment(){
     #PiHole
     docker_compose_deploy "pihole"
 
