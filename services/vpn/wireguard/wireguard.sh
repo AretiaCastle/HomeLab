@@ -4,7 +4,7 @@ wireguard_baremetal_deployment(){
     # Wireguard setup
     if ! command -v "wireguard" &> /dev/null; then
         echo "Needs to install wireguard."
-        return 0
+        sudo apt install -y wireguard
     fi
 
     # Enable packet IPv4 packets forwarding  
