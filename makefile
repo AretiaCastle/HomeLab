@@ -27,6 +27,18 @@ define load_env
 	set +a
 endef
 
+##
+# @Description
+# Import all the scripts recursively from the objective folder
+# @Parameters
+# $1 Directory to import scripts from
+##
+define import_from_dir
+	for file in $$(find $(1) -type f -name "*.sh" -print | sort); do \
+		. "$$file"; \
+	done
+endef
+
 # Load environment and execute deployment
 define deploy_service
 	@$(call log,Deploying $(1)...)
@@ -85,20 +97,20 @@ check:
 dns: check
 	@$(call log,Deploying DNS service...)
 	@$(load_env); \
-	@bash $(SERVICES_DIR)/dns/dns.sh
-	$(call log,DNS service deployed successfully)
+	bash $(SERVICES_DIR)/dns/dns.sh
+	@$(call log,DNS service deployed successfully)
 
 vpn: check
-	@$(call log,Deploying VPN service...)	
+	@$(call log,Deploying VPN service...)
 	@$(load_env); \
-	@bash $(SERVICES_DIR)/vpn/vpn.sh
-	$(call log,VPN service deployed successfully)
+	bash $(SERVICES_DIR)/vpn/vpn.sh
+	@$(call log,VPN service deployed successfully)
 
 external_ddns: check
-	@$(call log,Configuring External DDNS service...)	
+	@$(call log,Configuring External DDNS service...)
 	@$(load_env); \
-	@bash $(SERVICES_DIR)/external_ddns/external_ddns.sh
-	$(call log,DNS service deployed successfully)
+	bash $(SERVICES_DIR)/external_ddns/external_ddns.sh
+	@$(call log,External DDNS service deployed successfully)
 
 ingress: check
 	@$(call log, Ingress service is WIP)

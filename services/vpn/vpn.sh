@@ -1,7 +1,9 @@
 #!/bin/bash
 
-source "./wireguard/wireguard.sh"
+VPN_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+source "$VPN_SERVICE_FOLDER/wireguard/wireguard.sh"
 wireguard_baremetal_deployment
 
-source "./wgdashboard/wgdashboard.sh"
+source "$VPN_SERVICE_FOLDER/wgdashboard/wgdashboard.sh"
 wgdashboard_baremetal_deployment

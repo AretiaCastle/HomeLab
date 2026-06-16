@@ -2,7 +2,7 @@
 
 wireguard_baremetal_deployment(){
     # Wireguard setup
-    if ! command -v "wireguard" &> /dev/null; then
+    if ! command -v "wg" &> /dev/null; then
         echo "Needs to install wireguard."
         sudo apt install -y wireguard
     fi
