@@ -1,0 +1,110 @@
+# WGDashboard
+
+- [Official website](https://docs.wgdashboard.dev/)
+
+## Deployment
+
+### Docker
+
+- [Official docker deployment documentation](https://docs.wgdashboard.dev/install/Docker.html)
+
+The docker deployment of WGDashboard also contains a WireGuard server, so it is not necessary to install WireGuard on the host machine.
+
+
+### Bare-metal deployment
+
+- [Official installation documentation](https://docs.wgdashboard.dev/install/)
+
+```shell
+sudo apt install git iptables wireguard-tools net-tools && \
+sudo apt update && \
+git clone https://github.com/donaldzou/WGDashboard.git && \
+chmod +x ./WGDashboard/src/wgd.sh && \
+sudo mv ./WGDashboard /usr/local/bin/ && \
+cd /usr/local/bin/WGDashboard/src && \
+./wgd.sh install && \
+cd
+```
+
+Tras la instalación para arranque el servicio:
+
+```shell
+cd /usr/local/bin/WGDashboard/src/ && ./wgd.sh start && cd
+```
+
+[!TODO] Además configuramos el arranque automático del servicio:
+
+```shell
+echo "Arranque automático del servicio WGDashboard"
+```
+
+Una vez que el servicio esté listo, puedes acceder a la interfaz de
+administración en `http://localhost:10086/`. El usuario por defecto es `admin`
+y la contraseña por defecto es `admin`.
+
+### Configuración
+
+- [Official configuration guide](https://docs.wgdashboard.dev/guides/Add-WireGuard-Configuration.html)
+
+Assigning VPN clients addresses from the internal network can lead to errors, so
+it is recommended to use a private address range for these clients outside of
+the one managed by the router or the network being accessed. Additionally, it is
+possible that the router in charge of the network does not allow traffic of
+packets destined for a private IP outside of its network range. For these two
+reasons, it may be necessary to configure NAT on the machine hosting the VPN
+service.
+
+It is necessary to perform a configuration in the `PostUp` and `PostDown` fields
+of the service including the following in each case. Remember to change
+`INTERFACE_NAME` by the name of the interface through which the traffic will be
+directed.
+
+Field `PostUp`, substitute the fields `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`.
+
+```shell
+iptables -A FORWARD -s <PREFIX> -i <VPN_NAME> -o <MAIN_INTERFACE> -j ACCEPT && iptables -A FORWARD -d <PREFIX> -i <MAIN_INTERFACE> -o <VPN_NAME> -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -A POSTROUTING -s <PREFIX> -o <MAIN_INTERFACE> -j MASQUERADE
+```
+
+Execute this command to copy and paste the configuration:
+
+```shell
+PREFIX="10.0.0.0/24"
+VPN_NAME="Aretia"
+MAIN_INTERFACE="eth0"
+echo ''
+echo "iptables -A FORWARD -s $PREFIX -i $VPN_NAME -o $MAIN_INTERFACE -j ACCEPT && iptables -A FORWARD -d $PREFIX -i $MAIN_INTERFACE -o $VPN_NAME -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -A POSTROUTING -s $PREFIX -o $MAIN_INTERFACE -j MASQUERADE"
+echo ''
+```
+
+Field `PostDown`, substitute the fields `PREFIX`, `VPN_NAME`, `MAIN_INTERFACE`
+
+```shell
+iptables -D FORWARD -s <PREFIX> -i <VPN_NAME> -o <MAIN_INTERFACE> -j ACCEPT && iptables -D FORWARD -d <PREFIX> -i <MAIN_INTERFACE> -o <VPN_NAME> -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -D POSTROUTING -s <PREFIX> -o <MAIN_INTERFACE> -j MASQUERADE
+```
+
+Execute this command to copy and paste the configuration:
+
+```shell
+PREFIX="10.0.0.0/24"
+VPN_NAME="Aretia"
+MAIN_INTERFACE="eth0"
+echo ''
+echo "iptables -D FORWARD -s $PREFIX -i $VPN_NAME -o $MAIN_INTERFACE -j ACCEPT && iptables -D FORWARD -d $PREFIX -i $MAIN_INTERFACE -o $VPN_NAME -m state --state RELATED,ESTABLISHED -j ACCEPT && iptables -t nat -D POSTROUTING -s $PREFIX -o $MAIN_INTERFACE -j MASQUERADE"
+echo ''
+```
+
+### Actualización
+
+To update the service we must run the installation script again, although before
+it is recommended to update the local repository.
+
+```shell
+git clone https://github.com/donaldzou/WGDashboard.git && \
+cd ./WGDashboard/src && \
+chmod +x ./wgd.sh && \
+./wgd.sh install && \
+```
+
+## Reinicio de contraseña
+
+- [Official instructions](https://docs.wgdashboard.dev/reset-wgdashboard-password.html)
