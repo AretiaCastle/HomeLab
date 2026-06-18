@@ -22,7 +22,7 @@ Network Configuration
     WebUI Port
         Port Bind Mode [default]: Publish port on the host for external access
         Port Number [default]: 30027
-        Certificate ID: 'truenas_default' Certificate
+        [Not known how to configure] Certificate ID: 'truenas_default' Certificate
 Storage Configuration
     Nextcloud AppData Storage (HTML, Custom Themes, Apps, etc.)
         Type: Host Path
