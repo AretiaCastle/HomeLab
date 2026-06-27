@@ -1,7 +1,6 @@
 #!/bin/bash
 
 INGRESS_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
 source "$INGRESS_SERVICE_FOLDER/nginx/nginx.sh"
 
 ingress_deploy(){
