@@ -71,7 +71,7 @@ configure the routing rule through the web administration panel:
 4. Save the configuration.
 
 <img 
-src="./statics/service_config.png"
+src="./docs_statics/service_config.png"
 alt="Admin interface image"
 width="350"
 style="display: block; margin: 0 auto;"
