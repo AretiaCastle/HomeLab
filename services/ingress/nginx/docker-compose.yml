@@ -6,12 +6,15 @@ services:
       - '80:80'
       - '443:443'
       - "${NGINX_PROXY_WEB_INTERFACE_PORT}:81"
-    # Allow proxying to services exposed on the Docker host.
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+    networks:
+      - edge
     volumes:
       - data:/data
       - letsencrypt:/etc/letsencrypt
+
+networks:
+  edge:
+    name: "${PROJECT}"
 
 volumes:
   data:

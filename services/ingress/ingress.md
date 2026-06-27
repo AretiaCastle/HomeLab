@@ -11,15 +11,19 @@
 - [Deployment documentation](https://nginxproxymanager.com/setup/)
 
 The deployment with docker compose and this configuration creates a network
-named `ingress`. This network must be in all the other services that
+named like the configured project in `PROJECT`. This network must be in all the other services that
 are deployed with docker and need their traffic to be routed through the proxy.
 If a container it is not in this network, that service could not work with the
 `nginx` deployed.
 
-To create the network if is not already done use:
+When the ingress stack starts, Docker creates that network automatically. Other stacks
+that need to be reachable from the proxy must join it as an external network with:
 
 ```shell
-docker network create ingress
+networks:
+    edge:
+        external: true
+        name: "${PROJECT}"
 ```
 
 In order to list the names of the networks you could use:
