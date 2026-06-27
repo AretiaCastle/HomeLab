@@ -8,11 +8,11 @@ external_ddns_deploy(){
 }
 
 external_ddns_stop(){
-	echo "TODO: implement External DDNS stop"
+    duck_dns_stop
 }
 
 external_ddns_clean(){
-	echo "TODO: implement External DDNS clean"
+    duck_dns_clean
 }
 
 action="${1:-deploy}"

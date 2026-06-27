@@ -17,3 +17,11 @@ wgdashboard_baremetal_deployment(){
 wgdashboard_docker_deployment(){
     echo "WIP"
 }
+
+wgdashboard_stop(){
+    echo "TODO: implement WGDashboard stop"
+}
+
+wgdashboard_clean(){
+    echo "TODO: implement WGDashboard clean"
+}

@@ -10,11 +10,13 @@ vpn_deploy(){
 }
 
 vpn_stop(){
-	echo "TODO: implement VPN stop"
+    wireguard_stop
+    wgdashboard_stop
 }
 
 vpn_clean(){
-	echo "TODO: implement VPN clean"
+    wireguard_clean
+    wgdashboard_clean
 }
 
 action="${1:-deploy}"

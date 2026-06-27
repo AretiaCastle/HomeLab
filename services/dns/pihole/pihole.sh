@@ -34,3 +34,11 @@ pihole_docker_deployment(){
 
     # TODO: backup automation
 }
+
+pihole_stop(){
+    echo "TODO: implement Pihole stop"
+}
+
+pihole_clean(){
+    echo "TODO: implement Pihole clean"
+}

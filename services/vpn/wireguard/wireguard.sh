@@ -11,3 +11,11 @@ wireguard_baremetal_deployment(){
     echo 'net.ipv4.ip_forward=1' | sudo tee /etc/sysctl.d/99-wireguard-forward.conf >/dev/null
     sudo sysctl --system
 }
+
+wireguard_stop(){
+    echo "TODO: implement Wireguard stop"
+}
+
+wireguard_clean(){
+    echo "TODO: implement Wireguard clean"
+}

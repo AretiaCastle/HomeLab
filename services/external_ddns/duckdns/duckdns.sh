@@ -25,3 +25,11 @@ duck_dns_configuration(){
         echo "$cron_task" | sudo tee -a "$cron_file" > /dev/null
     fi
 }
+
+duck_dns_stop(){
+    echo "TODO: implement DuckDNS stop"
+}
+
+duck_dns_clean(){
+    echo "TODO: implement DuckDNS clean"
+}

@@ -8,11 +8,11 @@ dns_deploy(){
 }
 
 dns_stop(){
-	echo "TODO: implement DNS stop"
+    pihole_stop
 }
 
 dns_clean(){
-	echo "TODO: implement DNS clean"
+    pihole_clean
 }
 
 action="${1:-deploy}"
