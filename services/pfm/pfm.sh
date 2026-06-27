@@ -1,10 +1,10 @@
 #!/bin/bash
 
 PFM_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-source "$PFM_SERVICE_FOLDER/firefly_iii/fireflyiii.sh"
+source "$PFM_SERVICE_FOLDER/fireflyiii/fireflyiii.sh"
 
 pfm_deploy(){
-    personal_finance_manager_deployment_docker
+    personal_finance_manager_deploy_docker
 }
 
 pfm_stop(){

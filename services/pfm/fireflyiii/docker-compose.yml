@@ -1,38 +1,37 @@
 services:
-  firefly_iii_core:
+  fireflyiii_core:
     image: fireflyiii/core:latest
-    hostname: firefly_iii_core
-    container_name: firefly_iii_core
+    hostname: fireflyiii_core
+    container_name: fireflyiii_core
     restart: always
-    env_file: .env
     ports:
-      - 80:8080
+      - "$FIREFLYIII_WEB_INTERFACE_PORT:8080"
     volumes:
-      - firefly_iii_upload:/var/www/html/storage/upload
+      - fireflyiii_upload:/var/www/html/storage/upload
     networks:
       - ingress
     depends_on:
-      - db
+      - fireflyiii_db
 
-  db:
+  fireflyiii_db:
     image: mariadb:lts
-    hostname: db
-    container_name: firefly_iii_db
+    hostname: fireflyiii_db
+    container_name: fireflyiii_db
     restart: always
     env_file: .db.env
     volumes:
-      - firefly_iii_db:/var/lib/mysql
+      - fireflyiii_db:/var/lib/mysql
     networks:
       - ingress
 
-  cron:
+  fireflyiii_cron:
     #
     # To make this work, set STATIC_CRON_TOKEN in your .env file or as an environment variable
     # The STATIC_CRON_TOKEN must be *exactly* 32 characters long
     #
     image: alpine
     restart: always
-    container_name: firefly_iii_cron
+    container_name: fireflyiii_cron
     env_file: .env
     command: sh -c "
       apk add tzdata && \
@@ -43,21 +42,21 @@ services:
     networks:
       - ingress
     depends_on:
-      - app
+      - fireflyiii_core
 
 volumes:
-  firefly_iii_upload:
+  fireflyiii_upload:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/docker_volumes/personal_finance_manager/firefly_iii/upload
-  firefly_iii_db:
+      device: "$FIREFLYIII_UPLOAD_PATH"
+  fireflyiii_db:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/docker_volumes/personal_finance_manager/firefly_iii/db
+      device: "$FIREFLYIII_DB_PATH"
 
 networks:
   ingress:
