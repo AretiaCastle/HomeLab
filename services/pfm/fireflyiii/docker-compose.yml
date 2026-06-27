@@ -9,7 +9,7 @@ services:
     volumes:
       - fireflyiii_upload:/var/www/html/storage/upload
     networks:
-      - ingress
+      - edge
     depends_on:
       - fireflyiii_db
 
@@ -18,11 +18,10 @@ services:
     hostname: fireflyiii_db
     container_name: fireflyiii_db
     restart: always
-    env_file: .db.env
     volumes:
       - fireflyiii_db:/var/lib/mysql
     networks:
-      - ingress
+      - edge
 
   fireflyiii_cron:
     #
@@ -32,7 +31,6 @@ services:
     image: alpine
     restart: always
     container_name: fireflyiii_cron
-    env_file: .env
     command: sh -c "
       apk add tzdata && \
       (ln -s /usr/share/zoneinfo/$$TZ /etc/localtime || true) && \
@@ -40,7 +38,7 @@ services:
       | crontab - && \
       crond -f -L /dev/stdout"
     networks:
-      - ingress
+      - edge
     depends_on:
       - fireflyiii_core
 
@@ -59,5 +57,6 @@ volumes:
       device: "$FIREFLYIII_DB_PATH"
 
 networks:
-  ingress:
+  edge:
     external: true
+    name: "${PROJECT}"
