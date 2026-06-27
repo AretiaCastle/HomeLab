@@ -1,0 +1,28 @@
+services:
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      - '10081:81'
+    # Allow proxying to services exposed on the Docker host.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - data:/data
+      - letsencrypt:/etc/letsencrypt
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${NGINX_PROXY_DATA_VOLUME_PATH}"
+  letsencrypt:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${NGINX_PROXY_LETSENCRYPT_VOLUME_PATH}"
