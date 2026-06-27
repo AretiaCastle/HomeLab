@@ -14,15 +14,15 @@ duck_dns_configuration(){
     chmod +x "$duckdns_deployment_folder_path/duck.sh"
 
     # Create cron task - update IP every 5 minutes
-    cron_file="/etc/crontab"
+    CRON_FILEPATH="/etc/crontab"
     cron_header="# Duck DNS IP update"
     cron_task="*/5 *    * * *   $USER    $duckdns_deployment_folder_path/duck.sh >/dev/null 2>&1"
 
-    if ! sudo grep -Fqx "$cron_header" "$cron_file"; then
-        echo "$cron_header" | sudo tee -a "$cron_file" > /dev/null
+    if ! sudo grep -Fqx "$cron_header" "$CRON_FILEPATH"; then
+        echo "$cron_header" | sudo tee -a "$CRON_FILEPATH" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_task" "$cron_file"; then
-        echo "$cron_task" | sudo tee -a "$cron_file" > /dev/null
+    if ! sudo grep -Fqx "$cron_task" "$CRON_FILEPATH"; then
+        echo "$cron_task" | sudo tee -a "$CRON_FILEPATH" > /dev/null
     fi
 }
 

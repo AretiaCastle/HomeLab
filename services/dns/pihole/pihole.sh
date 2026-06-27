@@ -11,28 +11,25 @@ pihole_baremetal_deployment(){
     mkdir -p "$PIHOLE_BACKUP_PATH"
 
     # Backup every day at 03:30 and 04:00
-    cron_file="/etc/crontab"
+    CRON_FILEPATH="/etc/crontab"
     cron_header="# Pihole DNS backup tasks"
     cron_pihole="30 03     * * *   root    cp -r /etc/pihole $PIHOLE_BACKUP_PATH/pihole"
     cron_dnsmasq="00 04     * * *   root    cp -r /etc/dnsmasq.d $PIHOLE_BACKUP_PATH/dnsmasq.d"
 
-    if ! sudo grep -Fqx "$cron_header" "$cron_file"; then
-        echo "$cron_header" | sudo tee -a "$cron_file" > /dev/null
+    if ! sudo grep -Fqx "$cron_header" "$CRON_FILEPATH"; then
+        echo "$cron_header" | sudo tee -a "$CRON_FILEPATH" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_pihole" "$cron_file"; then
-        echo "$cron_pihole" | sudo tee -a "$cron_file" > /dev/null
+    if ! sudo grep -Fqx "$cron_pihole" "$CRON_FILEPATH"; then
+        echo "$cron_pihole" | sudo tee -a "$CRON_FILEPATH" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_dnsmasq" "$cron_file"; then
-        echo "$cron_dnsmasq" | sudo tee -a "$cron_file" > /dev/null
+    if ! sudo grep -Fqx "$cron_dnsmasq" "$CRON_FILEPATH"; then
+        echo "$cron_dnsmasq" | sudo tee -a "$CRON_FILEPATH" > /dev/null
     fi
 }
 
 # TODO: Deployment of Pihole with Docker
 pihole_docker_deployment(){
-    #PiHole
-    docker_compose_deploy "pihole"
-
-    # TODO: backup automation
+    echo "TODO: implement Pihole docker deployment"
 }
 
 pihole_stop(){
