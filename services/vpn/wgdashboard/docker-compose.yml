@@ -5,10 +5,8 @@ services:
     container_name: wgdashboard
 
     ports:
-      # Web interface port
-      - "${WGDASHBOARD_DOCKER_WEB_INTERFACE_PORT}:${WGDASHBOARD_DOCKER_WEB_INTERFACE_PORT}/tcp"
-      # VPN connection port
-      - "${WGDASHBOARD_DOCKER_VPN_PORT}:${WGDASHBOARD_DOCKER_VPN_PORT}/udp"
+      - "${WGDASHBOARD_WEB_INTERFACE_PORT}:${WGDASHBOARD_WEB_INTERFACE_PORT}/tcp"
+      - "${WGDASHBOARD_VPN_PORT}:${WGDASHBOARD_VPN_PORT}/udp"
 
     volumes:
       - aconf:/etc/amnezia/amneziawg
@@ -24,16 +22,16 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "${WGDASHBOARD_DOCKER_ACONF_VOLUME_PATH}"
+      device: "${WGDASHBOARD_ACONF_VOLUME_PATH}"
   conf:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: "${WGDASHBOARD_DOCKER_CONF_VOLUME_PATH}"
+      device: "${WGDASHBOARD_CONF_VOLUME_PATH}"
   data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: "${WGDASHBOARD_DOCKER_DATA_VOLUME_PATH}"
+      device: "${WGDASHBOARD_DATA_VOLUME_PATH}"
