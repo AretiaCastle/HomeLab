@@ -11,19 +11,19 @@ pihole_baremetal_deployment(){
     mkdir -p "$PIHOLE_BACKUP_PATH"
 
     # Backup every day at 03:30 and 04:00
-    CRON_FILEPATH="/etc/crontab"
+    local cron_filepath="${CRON_FILEPATH:-/etc/crontab}"
     cron_header="# Pihole DNS backup tasks"
     cron_pihole="30 03     * * *   root    cp -r /etc/pihole $PIHOLE_BACKUP_PATH/pihole"
     cron_dnsmasq="00 04     * * *   root    cp -r /etc/dnsmasq.d $PIHOLE_BACKUP_PATH/dnsmasq.d"
 
-    if ! sudo grep -Fqx "$cron_header" "$CRON_FILEPATH"; then
-        echo "$cron_header" | sudo tee -a "$CRON_FILEPATH" > /dev/null
+    if ! sudo grep -Fqx "$cron_header" "$cron_filepath"; then
+        echo "$cron_header" | sudo tee -a "$cron_filepath" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_pihole" "$CRON_FILEPATH"; then
-        echo "$cron_pihole" | sudo tee -a "$CRON_FILEPATH" > /dev/null
+    if ! sudo grep -Fqx "$cron_pihole" "$cron_filepath"; then
+        echo "$cron_pihole" | sudo tee -a "$cron_filepath" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_dnsmasq" "$CRON_FILEPATH"; then
-        echo "$cron_dnsmasq" | sudo tee -a "$CRON_FILEPATH" > /dev/null
+    if ! sudo grep -Fqx "$cron_dnsmasq" "$cron_filepath"; then
+        echo "$cron_dnsmasq" | sudo tee -a "$cron_filepath" > /dev/null
     fi
 }
 

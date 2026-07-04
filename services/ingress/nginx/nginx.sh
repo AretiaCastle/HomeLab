@@ -12,18 +12,19 @@ nginx_proxy_deployment_docker(){
     mkdir -p "$NGINX_PROXY_BACKUP_PATH"
 
     # Backup every day at 03:30 and 04:00
+    local cron_filepath="${CRON_FILEPATH:-/etc/crontab}"
     cron_header="# Nginx proxy manager backup tasks"
     cron_nginx_data="30 03     * * *   root    cp -r $NGINX_PROXY_DATA_PATH $NGINX_PROXY_BACKUP_PATH"
     cron_letsencrypt="00 04     * * *   root    cp -r $NGINX_PROXY_LETSENCRYPT_PATH $NGINX_PROXY_BACKUP_PATH"
 
-    if ! sudo grep -Fqx "$cron_header" "$CRON_FILEPATHPATH"; then
-        echo "$cron_header" | sudo tee -a "$CRON_FILEPATH" > /dev/null
+    if ! sudo grep -Fqx "$cron_header" "$cron_filepath"; then
+        echo "$cron_header" | sudo tee -a "$cron_filepath" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_nginx_data" "$CRON_FILEPATH"; then
-        echo "$cron_nginx_data" | sudo tee -a "$CRON_FILEPATH" > /dev/null
+    if ! sudo grep -Fqx "$cron_nginx_data" "$cron_filepath"; then
+        echo "$cron_nginx_data" | sudo tee -a "$cron_filepath" > /dev/null
     fi
-    if ! sudo grep -Fqx "$cron_letsencrypt" "$CRON_FILEPATH"; then
-        echo "$cron_letsencrypt" | sudo tee -a "$CRON_FILEPATH" > /dev/null
+    if ! sudo grep -Fqx "$cron_letsencrypt" "$cron_filepath"; then
+        echo "$cron_letsencrypt" | sudo tee -a "$cron_filepath" > /dev/null
     fi
 }
 
