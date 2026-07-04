@@ -8,6 +8,8 @@ services:
       - "$FIREFLYIII_WEB_INTERFACE_PORT:8080"
     volumes:
       - fireflyiii_upload:/var/www/html/storage/upload
+    env_file:
+      - ./.env.fireflyiii
     networks:
       - edge
     depends_on:
@@ -20,6 +22,8 @@ services:
     restart: always
     volumes:
       - fireflyiii_db:/var/lib/mysql
+    env_file:
+      - ./.db.env.fireflyiii
     networks:
       - edge
 
@@ -31,6 +35,8 @@ services:
     image: alpine
     restart: always
     container_name: fireflyiii_cron
+    env_file:
+      - ./.env.fireflyiii
     command: sh -c "
       apk add tzdata && \
       (ln -s /usr/share/zoneinfo/$$TZ /etc/localtime || true) && \
