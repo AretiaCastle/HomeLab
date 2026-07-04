@@ -1,6 +1,8 @@
 # Environments
 .env
+.env.*
 .db.env
+.db.env.*
 .venv
 env/
 venv/
