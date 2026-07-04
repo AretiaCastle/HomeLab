@@ -3,6 +3,7 @@
 .env.*
 .db.env
 .db.env.*
+!**/*.example
 .venv
 env/
 venv/
@@ -15,8 +16,3 @@ logs/*.log
 
 # Editors and IDEs
 .idea/
-
-# Services
-## Personal finance manager
-services/personal_finance_manager/firefly_backups/*
-!services/personal_finance_manager/firefly_backups/.placeholder
