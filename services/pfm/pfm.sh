@@ -15,6 +15,14 @@ pfm_clean(){
     personal_finance_manager_clean_docker
 }
 
+pfm_backup(){
+    echo "TODO: implement PFM backup"
+}
+
+pfm_restore(){
+    echo "TODO: implement PFM restore"
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -27,8 +35,14 @@ case "$action" in
 	clean)
 		pfm_clean
 		;;
+	backup)
+		pfm_backup
+		;;
+	restore)
+		pfm_restore
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
 		exit 1
 		;;
 esac

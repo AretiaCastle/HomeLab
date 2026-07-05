@@ -1,12 +1,12 @@
 .PHONY: help check \ 
 		deploy-all deploy-network deploy-media deploy-finance \
         stop clean status logs \
-		external_ddns stop-external_ddns clean-external_ddns \
-		dns stop-dns clean-dns \
-		ingress stop-ingress clean-ingress \
-		vpn stop-vpn clean-vpn \
-		torrent stop-torrent clean-torrent \
-		pfm stop-pfm clean-pfm
+		external_ddns stop-external_ddns clean-external_ddns backup-external_ddns restore-external_ddns \
+		dns stop-dns clean-dns backup-dns restore-dns \
+		ingress stop-ingress clean-ingress backup-ingress restore-ingress \
+		vpn stop-vpn clean-vpn backup-vpn restore-vpn \
+		torrent stop-torrent clean-torrent backup-torrent restore-torrent \
+		pfm stop-pfm clean-pfm backup-pfm restore-pfm
 
 # Constants
 BASE_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -78,6 +78,28 @@ define clean_service
 	@$(call log, $(1) service cleaned successfully)
 endef
 
+# Backup service.
+# $(1): Display name (e.g. Ingress)
+# $(2): Service directory (e.g. ingress)
+# $(3): Script name (e.g. ingress.sh)
+define backup_service
+	@$(call log, Creating backup for $(1) service...)
+	@$(call load_env,$(2)); \
+	bash $(SERVICES_DIR)/$(2)/$(3) backup
+	@$(call log, Backup for $(1) service finished)
+endef
+
+# Restore service.
+# $(1): Display name (e.g. Ingress)
+# $(2): Service directory (e.g. ingress)
+# $(3): Script name (e.g. ingress.sh)
+define restore_service
+	@$(call log, Restoring backup of $(1) service...)
+	@$(call load_env,$(2)); \
+	bash $(SERVICES_DIR)/$(2)/$(3) restore
+	@$(call log, Backup restored for $(1) service)
+endef
+
 ################################################################################
 # Targets
 
@@ -132,6 +154,10 @@ stop-external_ddns:
 	$(call stop_service,External DDNS,external_ddns,external_ddns.sh)
 clean-external_ddns:
 	$(call clean_service,External DDNS,external_ddns,external_ddns.sh)
+backup-external_ddns:
+	$(call backup_service,External DDNS,external_ddns,external_ddns.sh)
+restore-external_ddns:
+	$(call restore_service,External DDNS,external_ddns,external_ddns.sh)
 
 # DNS
 dns: check
@@ -140,6 +166,10 @@ stop-dns:
 	$(call stop_service,DNS,dns,dns.sh)
 clean-dns:
 	$(call clean_service,DNS,dns,dns.sh)
+backup-dns:
+	$(call backup_service,DNS,dns,dns.sh)
+restore-dns:
+	$(call restore_service,DNS,dns,dns.sh)
 
 # VPN
 vpn: check
@@ -148,6 +178,10 @@ stop-vpn:
 	$(call stop_service,VPN,vpn,vpn.sh)
 clean-vpn:
 	$(call clean_service,VPN,vpn,vpn.sh)
+backup-vpn:
+	$(call backup_service,VPN,vpn,vpn.sh)
+restore-vpn:
+	$(call restore_service,VPN,vpn,vpn.sh)
 
 # Ingress
 ingress: check
@@ -156,6 +190,10 @@ stop-ingress:
 	$(call stop_service,Ingress,ingress,ingress.sh)
 clean-ingress:
 	$(call clean_service,Ingress,ingress,ingress.sh)
+backup-ingress:
+	$(call backup_service,Ingress,ingress,ingress.sh)
+restore-ingress:
+	$(call restore_service,Ingress,ingress,ingress.sh)
 
 # Torrent
 torrent: check
@@ -164,6 +202,10 @@ stop-torrent:
 	$(call stop_service,Torrent,torrent,torrent.sh)
 clean-torrent:
 	$(call clean_service,Torrent,torrent,torrent.sh)
+backup-torrent:
+	$(call backup_service,Torrent,torrent,torrent.sh)
+restore-torrent:
+	$(call restore_service,Torrent,torrent,torrent.sh)
 
 # Personal Finance Manager
 pfm: check
@@ -172,6 +214,10 @@ stop-pfm:
 	$(call stop_service,Personal Finance Manager,pfm,pfm.sh)
 clean-pfm:
 	$(call clean_service,Personal Finance Manager,pfm,pfm.sh)
+backup-pfm:
+	$(call backup_service,Personal Finance Manager,pfm,pfm.sh)
+restore-pfm:
+	$(call restore_service,Personal Finance Manager,pfm,pfm.sh)
 
 # Predefined groups
 deploy-network: 

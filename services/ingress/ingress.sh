@@ -15,6 +15,14 @@ ingress_clean(){
 	nginx_proxy_cleanup_docker
 }
 
+ingress_backup(){
+	echo "TODO: implement Ingress backup"
+}
+
+ingress_restore(){
+	echo "TODO: implement Ingress restore"
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -27,8 +35,14 @@ case "$action" in
 	clean)
 		ingress_clean
 		;;
+	backup)
+		ingress_backup
+		;;
+	restore)
+		ingress_restore
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
 		exit 1
 		;;
 esac

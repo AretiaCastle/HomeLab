@@ -5,7 +5,7 @@ read -sp "Enter database password: " DB_PASSWORD
 echo "" # Add newline after password input
 
 # Validate password by trying to list databases
-if ! docker exec -i firefly_iii_db mariadb -u firefly -p"${DB_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
+if ! docker exec -i fireflyiii_db mariadb -u firefly -p"${DB_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
     echo "Error: Invalid database password"
     exit 1
 fi
