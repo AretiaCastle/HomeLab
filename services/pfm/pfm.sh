@@ -16,7 +16,7 @@ pfm_clean(){
 }
 
 pfm_backup(){
-    echo "TODO: implement PFM backup"
+    personal_finance_manager_backup_docker
 }
 
 pfm_restore(){
