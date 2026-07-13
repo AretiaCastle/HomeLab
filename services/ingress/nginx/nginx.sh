@@ -29,9 +29,15 @@ nginx_proxy_deployment_docker(){
 }
 
 nginx_proxy_stop_docker(){
-    docker compose -p "${PROJECT}" -f "$NGINX_PROXY_FOLDER/docker-compose.yml" stop
+    docker compose \
+        -p "${PROJECT}" \
+        -f "$NGINX_PROXY_FOLDER/docker-compose.yml" \
+        stop
 }
 
 nginx_proxy_cleanup_docker(){
-    docker compose -p "${PROJECT}" -f "$NGINX_PROXY_FOLDER/docker-compose.yml" down --remove-orphans --volumes
+    docker compose \
+        -p "${PROJECT}" \
+        -f "$NGINX_PROXY_FOLDER/docker-compose.yml" \
+        down --volumes
 }

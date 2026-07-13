@@ -9,21 +9,21 @@ services:
     networks:
       - edge
     volumes:
-      - data:/data
-      - letsencrypt:/etc/letsencrypt
+      - nginx_data:/data
+      - nginx_letsencrypt:/etc/letsencrypt
 
 networks:
   edge:
     name: "${PROJECT}"
 
 volumes:
-  data:
+  nginx_data:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: "${NGINX_PROXY_DATA_PATH}"
-  letsencrypt:
+  nginx_letsencrypt:
     driver: local
     driver_opts:
       type: none

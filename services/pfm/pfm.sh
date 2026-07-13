@@ -4,23 +4,23 @@ PFM_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 source "$PFM_SERVICE_FOLDER/fireflyiii/fireflyiii.sh"
 
 pfm_deploy(){
-    personal_finance_manager_deploy_docker
+    fireflyiii_deploy_docker
 }
 
 pfm_stop(){
-    personal_finance_manager_stop_docker
+    fireflyiii_stop_docker
 }
 
 pfm_clean(){
-    personal_finance_manager_clean_docker
+    fireflyiii_clean_docker
 }
 
 pfm_backup(){
-    personal_finance_manager_backup_docker
+    fireflyiii_backup_docker
 }
 
 pfm_restore(){
-    echo "TODO: implement PFM restore"
+    fireflyiii_restore_backup_docker
 }
 
 action="${1:-deploy}"

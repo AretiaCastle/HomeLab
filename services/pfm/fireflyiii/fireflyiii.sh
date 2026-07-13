@@ -27,7 +27,7 @@ check_fireflyiii_env_files(){
     return 0
 }
 
-personal_finance_manager_deploy_docker(){
+fireflyiii_deploy_docker(){
     check_fireflyiii_env_files || return 1
 
     # FireflyIII
@@ -41,15 +41,27 @@ personal_finance_manager_deploy_docker(){
         up -d
 }
 
-personal_finance_manager_stop_docker(){
-    echo "TODO: implement Firefly III stop"
+fireflyiii_stop_docker(){
+    check_fireflyiii_env_files || return 1
+
+    docker compose \
+        -p "${PROJECT}" \
+        --project-directory "$FIREFLYIII_FOLDER" \
+        -f "$FIREFLYIII_FOLDER/docker-compose.yml" \
+        stop
 }
 
-personal_finance_manager_clean_docker(){
-    echo "TODO: implement Firefly III clean"
+fireflyiii_clean_docker(){
+    check_fireflyiii_env_files || return 1
+
+    docker compose \
+        -p "${PROJECT}" \
+        --project-directory "$FIREFLYIII_FOLDER" \
+        -f "$FIREFLYIII_FOLDER/docker-compose.yml" \
+        down --volumes
 }
 
-personal_finance_manager_backup_docker() {
+fireflyiii_backup_docker() {
     # Validate password by trying to list databases
     if ! docker exec -i fireflyiii_db mariadb -u firefly -p "${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
         echo "Error: Invalid database password"
@@ -74,7 +86,7 @@ personal_finance_manager_backup_docker() {
 
     # Verify the backup
     echo "Verifying backup..."
-    verify_docker_backup
+    verify_fireflyiii_docker_backup
 
     # Calculate and store checksums
     echo "Calculating checksums..."
@@ -96,7 +108,7 @@ personal_finance_manager_backup_docker() {
     echo "- Backup integrity verified via checksum"
 }
 
-verify_docker_backup() {
+verify_fireflyiii_docker_backup() {
     # Create temp directory for verification
     VERIFY_DIR="verify_temp"
     mkdir -p $VERIFY_DIR
@@ -127,7 +139,7 @@ verify_docker_backup() {
     fi
 }
 
-personal_finance_manager_restore_backup_docker() {
+fireflyiii_restore_backup_docker() {
     local backup_name="$1"
 
     # If no backup file is provided, pick the newest date-based backup name.
