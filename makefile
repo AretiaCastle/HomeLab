@@ -150,73 +150,73 @@ check:
 # External DDNS
 external_ddns: check
 	$(call deploy_service,External DDNS,external_ddns,external_ddns.sh)
-stop-external_ddns:
+stop-external_ddns: check
 	$(call stop_service,External DDNS,external_ddns,external_ddns.sh)
-clean-external_ddns:
+clean-external_ddns: check
 	$(call clean_service,External DDNS,external_ddns,external_ddns.sh)
-backup-external_ddns:
+backup-external_ddns: check
 	$(call backup_service,External DDNS,external_ddns,external_ddns.sh)
-restore-external_ddns:
+restore-external_ddns: check
 	$(call restore_service,External DDNS,external_ddns,external_ddns.sh)
 
 # DNS
 dns: check
 	$(call deploy_service,DNS,dns,dns.sh)
-stop-dns:
+stop-dns: check
 	$(call stop_service,DNS,dns,dns.sh)
-clean-dns:
+clean-dns: check
 	$(call clean_service,DNS,dns,dns.sh)
-backup-dns:
+backup-dns: check
 	$(call backup_service,DNS,dns,dns.sh)
-restore-dns:
+restore-dns: check
 	$(call restore_service,DNS,dns,dns.sh)
 
 # VPN
 vpn: check
 	$(call deploy_service,VPN,vpn,vpn.sh)
-stop-vpn:
+stop-vpn: check
 	$(call stop_service,VPN,vpn,vpn.sh)
-clean-vpn:
+clean-vpn: check
 	$(call clean_service,VPN,vpn,vpn.sh)
-backup-vpn:
+backup-vpn: check
 	$(call backup_service,VPN,vpn,vpn.sh)
-restore-vpn:
+restore-vpn: check
 	$(call restore_service,VPN,vpn,vpn.sh)
 
 # Ingress
 ingress: check
 	$(call deploy_service,Ingress,ingress,ingress.sh)
-stop-ingress:
+stop-ingress: check
 	$(call stop_service,Ingress,ingress,ingress.sh)
-clean-ingress:
+clean-ingress: check
 	$(call clean_service,Ingress,ingress,ingress.sh)
-backup-ingress:
+backup-ingress: check
 	$(call backup_service,Ingress,ingress,ingress.sh)
-restore-ingress:
+restore-ingress: check
 	$(call restore_service,Ingress,ingress,ingress.sh)
 
 # Torrent
 torrent: check
 	$(call deploy_service,Torrent,torrent,torrent.sh)
-stop-torrent:
+stop-torrent: check
 	$(call stop_service,Torrent,torrent,torrent.sh)
-clean-torrent:
+clean-torrent: check
 	$(call clean_service,Torrent,torrent,torrent.sh)
-backup-torrent:
+backup-torrent: check
 	$(call backup_service,Torrent,torrent,torrent.sh)
-restore-torrent:
+restore-torrent: check
 	$(call restore_service,Torrent,torrent,torrent.sh)
 
 # Personal Finance Manager
 pfm: check
 	$(call deploy_service,Personal Finance Manager,pfm,pfm.sh)
-stop-pfm:
+stop-pfm: check
 	$(call stop_service,Personal Finance Manager,pfm,pfm.sh)
-clean-pfm:
+clean-pfm: check
 	$(call clean_service,Personal Finance Manager,pfm,pfm.sh)
-backup-pfm:
+backup-pfm: check
 	$(call backup_service,Personal Finance Manager,pfm,pfm.sh)
-restore-pfm:
+restore-pfm: check
 	$(call restore_service,Personal Finance Manager,pfm,pfm.sh)
 
 # Predefined groups
