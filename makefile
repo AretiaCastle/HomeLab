@@ -13,7 +13,7 @@ BASE_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 SERVICES_DIR := $(BASE_DIR)/services
 ENV_FILE := $(BASE_DIR)/.env
 LOG_DIR := $(BASE_DIR)/logs
-LOG_FILE := $(LOG_DIR)/deployment-$(shell date +%Y%m%d).log
+LOG_FILE := $(LOG_DIR)/log-$(shell date +%Y%m%d_%H-%M-%S).log
 
 ################################################################################
 # Functions
