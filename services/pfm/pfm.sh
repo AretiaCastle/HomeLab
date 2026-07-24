@@ -1,18 +1,26 @@
 #!/bin/bash
 
 PFM_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-source "$PFM_SERVICE_FOLDER/firefly_iii/fireflyiii.sh"
+source "$PFM_SERVICE_FOLDER/fireflyiii/fireflyiii.sh"
 
 pfm_deploy(){
-    personal_finance_manager_deployment_docker
+    fireflyiii_deploy_docker
 }
 
 pfm_stop(){
-    personal_finance_manager_stop_docker
+    fireflyiii_stop_docker
 }
 
 pfm_clean(){
-    personal_finance_manager_clean_docker
+    fireflyiii_clean_docker
+}
+
+pfm_backup(){
+    fireflyiii_backup_docker
+}
+
+pfm_restore(){
+    fireflyiii_restore_backup_docker
 }
 
 action="${1:-deploy}"
@@ -27,8 +35,14 @@ case "$action" in
 	clean)
 		pfm_clean
 		;;
+	backup)
+		pfm_backup
+		;;
+	restore)
+		pfm_restore
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
 		exit 1
 		;;
 esac

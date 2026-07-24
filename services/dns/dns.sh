@@ -15,6 +15,14 @@ dns_clean(){
     pihole_clean
 }
 
+dns_backup(){
+    echo "TODO: implement DNS backup"
+}
+
+dns_restore(){
+    echo "TODO: implement DNS restore"
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -27,8 +35,14 @@ case "$action" in
 	clean)
 		dns_clean
 		;;
+	backup)
+		dns_backup
+		;;
+	restore)
+		dns_restore
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
 		exit 1
 		;;
 esac

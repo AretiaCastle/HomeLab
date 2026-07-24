@@ -6,23 +6,26 @@ services:
       - '80:80'
       - '443:443'
       - "${NGINX_PROXY_WEB_INTERFACE_PORT}:81"
-    # Allow proxying to services exposed on the Docker host.
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+    networks:
+      - edge
     volumes:
-      - data:/data
-      - letsencrypt:/etc/letsencrypt
+      - nginx_data:/data
+      - nginx_letsencrypt:/etc/letsencrypt
+
+networks:
+  edge:
+    name: "${PROJECT}"
 
 volumes:
-  data:
+  nginx_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: "${NGINX_PROXY_DATA_VOLUME_PATH}"
-  letsencrypt:
+      device: "${NGINX_PROXY_DATA_PATH}"
+  nginx_letsencrypt:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: "${NGINX_PROXY_LETSENCRYPT_VOLUME_PATH}"
+      device: "${NGINX_PROXY_LETSENCRYPT_PATH}"

@@ -15,6 +15,14 @@ external_ddns_clean(){
     duck_dns_clean
 }
 
+external_ddns_backup(){
+    echo "TODO: implement External DDNS backup"
+}
+
+external_ddns_restore(){
+    echo "TODO: implement External DDNS restore"
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -27,8 +35,14 @@ case "$action" in
 	clean)
 		external_ddns_clean
 		;;
+	backup)
+		external_ddns_backup
+		;;
+	restore)
+		external_ddns_restore
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
 		exit 1
 		;;
 esac

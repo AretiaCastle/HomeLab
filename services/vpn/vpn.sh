@@ -19,6 +19,14 @@ vpn_clean(){
     wgdashboard_clean
 }
 
+vpn_backup(){
+    echo "TODO: implement VPN backup"
+}
+
+vpn_restore(){
+    echo "TODO: implement VPN restore"
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -31,8 +39,14 @@ case "$action" in
 	clean)
 		vpn_clean
 		;;
+	backup)
+		vpn_backup
+		;;
+	restore)
+		vpn_restore
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
 		exit 1
 		;;
 esac
