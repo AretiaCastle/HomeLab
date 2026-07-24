@@ -68,7 +68,8 @@ fireflyiii_backup_docker() {
     load_fireflyiii_env || return 1
 
     # Validate password by trying to list databases
-    if ! docker exec -i fireflyiii_db mariadb -u firefly -p "${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
+    echo "Database password: $MYSQL_PASSWORD"
+    if ! docker exec -i fireflyiii_db mariadb -u firefly -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
         echo "Error: Invalid database password"
         exit 1
     fi
