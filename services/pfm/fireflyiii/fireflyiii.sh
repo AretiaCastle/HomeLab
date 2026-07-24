@@ -27,9 +27,16 @@ check_fireflyiii_env_files(){
     return 0
 }
 
-fireflyiii_deploy_docker(){
+load_fireflyiii_env(){
     check_fireflyiii_env_files || return 1
 
+    set -a
+    source "$FIREFLYIII_ENV_FILE"
+    source "$FIREFLYIII_DB_ENV_FILE"
+    set +a
+}
+
+fireflyiii_deploy_docker(){
     # FireflyIII
     sudo mkdir -p "$FIREFLYIII_UPLOAD_PATH"
     sudo mkdir -p "$FIREFLYIII_DB_PATH"
@@ -42,8 +49,6 @@ fireflyiii_deploy_docker(){
 }
 
 fireflyiii_stop_docker(){
-    check_fireflyiii_env_files || return 1
-
     docker compose \
         -p "${PROJECT}" \
         --project-directory "$FIREFLYIII_FOLDER" \
@@ -52,8 +57,6 @@ fireflyiii_stop_docker(){
 }
 
 fireflyiii_clean_docker(){
-    check_fireflyiii_env_files || return 1
-
     docker compose \
         -p "${PROJECT}" \
         --project-directory "$FIREFLYIII_FOLDER" \
@@ -62,6 +65,8 @@ fireflyiii_clean_docker(){
 }
 
 fireflyiii_backup_docker() {
+    load_fireflyiii_env || return 1
+
     # Validate password by trying to list databases
     if ! docker exec -i fireflyiii_db mariadb -u firefly -p "${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
         echo "Error: Invalid database password"
@@ -140,8 +145,9 @@ verify_fireflyiii_docker_backup() {
 }
 
 fireflyiii_restore_backup_docker() {
-    local backup_name="$1"
+    load_fireflyiii_env || return 1
 
+    local backup_name="$1"
     # If no backup file is provided, pick the newest date-based backup name.
     if [[ -z "$backup_name" ]]; then
         backup_name=$(find "$FIREFLYIII_BACKUP_PATH" -maxdepth 1 -type f -name "*.tar.gz" -printf "%f\n" 2>/dev/null | sort -r | head -n 1)
@@ -155,6 +161,7 @@ fireflyiii_restore_backup_docker() {
     fi
 
     # Validate password by trying to list databases
+    echo "Database password: $MYSQL_PASSWORD"
     if ! docker exec -i fireflyiii_db mariadb -u firefly -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
         echo "Error: Invalid database password"
         exit 1
@@ -187,7 +194,7 @@ fireflyiii_restore_backup_docker() {
 
     # Restore database
     echo "Restoring database..."
-    cat "$FULL_RESTORE_PATH/database.sql" | docker exec -i fireflyiii_db mariadb -u firefly -p"${DB_PASSWORD}" firefly
+    cat "$FULL_RESTORE_PATH/database.sql" | docker exec -i fireflyiii_db mariadb -u firefly -p"${MYSQL_PASSWORD}" firefly
     if [ $? -ne 0 ]; then
         echo "ERROR: Database restore failed!"
         rm -rf "$RESTORE_DIR"
