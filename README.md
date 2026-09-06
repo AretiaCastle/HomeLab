@@ -103,16 +103,6 @@ HomeLab/
 
 See [SERVICES_STRUCTURE.md](SERVICES_STRUCTURE.md) for detailed service organization.
 
-## Migration
-
-If you're upgrading from the old `deployment/` and `documentation/` structure:
-
-```bash
-./reorganize.sh
-```
-
-This combines deployment and documentation into the new `services/` directory.
-
 ---
 
 ## LICENSE
