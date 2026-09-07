@@ -75,7 +75,8 @@ fireflyiii_backup_docker() {
     fi
     
     # Create backup directory
-    BACKUP_DIR="$FIREFLYIII_BACKUP_PATH/$(date +%Y%m%d)"
+    local backup_tag="$(date +%Y%m%d)"
+    BACKUP_DIR="$FIREFLYIII_BACKUP_PATH/$backup_tag"
     mkdir -p "$BACKUP_DIR"
 
     # Database backup
@@ -86,20 +87,17 @@ fireflyiii_backup_docker() {
     echo "Creating uploads backup..."
     docker cp fireflyiii_core:/var/www/html/storage/upload "$BACKUP_DIR/uploads"
 
-    # Compress the backup
+    # Compress the backup (using relative path with -C)
     echo "Compressing backup..."
-    tar -czf "$BACKUP_DIR.tar.gz" "$BACKUP_DIR"
+    tar -czf "$BACKUP_DIR.tar.gz" -C "$FIREFLYIII_BACKUP_PATH" "$backup_tag"
 
     # Verify the backup
     echo "Verifying backup..."
-    verify_fireflyiii_docker_backup
+    verify_fireflyiii_docker_backup "$backup_tag"
 
     # Calculate and store checksums
     echo "Calculating checksums..."
     sha256sum "$BACKUP_DIR.tar.gz" > "$BACKUP_DIR.tar.gz.sha256"
-
-    # Clean up verification directory
-    rm -rf $VERIFY_DIR
 
     # Remove the uncompressed backup directory
     rm -rf "$BACKUP_DIR"
@@ -115,16 +113,17 @@ fireflyiii_backup_docker() {
 }
 
 verify_fireflyiii_docker_backup() {
-    # Create temp directory for verification
-    VERIFY_DIR="verify_temp"
-    mkdir -p $VERIFY_DIR
+    local backup_tag="$1"
+    local verify_dir="$FIREFLYIII_BACKUP_PATH/verify_temp"
+    mkdir -p "$verify_dir"
 
     # Extract the backup
-    tar -xzf "$BACKUP_DIR.tar.gz" -C $VERIFY_DIR
+    tar -xzf "$BACKUP_DIR.tar.gz" -C "$verify_dir"
 
     # Verify database dump
-    if [ ! -s "$VERIFY_DIR/$BACKUP_DIR/database.sql" ]; then
+    if [ ! -s "$verify_dir/$backup_tag/database.sql" ]; then
         echo "ERROR: Database dump is empty or missing!"
+        rm -rf "$verify_dir"
         exit 1
     fi
 
@@ -132,17 +131,22 @@ verify_fireflyiii_docker_backup() {
     echo "Checking database content..."
     REQUIRED_TABLES=("users" "accounts" "transactions")
     for table in "${REQUIRED_TABLES[@]}"; do
-        if ! grep -q "CREATE TABLE \`$table\`" "$VERIFY_DIR/$BACKUP_DIR/database.sql"; then
+        if ! grep -q "CREATE TABLE \`$table\`" "$verify_dir/$backup_tag/database.sql"; then
             echo "ERROR: Required table '$table' not found in database dump!"
+            rm -rf "$verify_dir"
             exit 1
         fi
     done
 
     # Verify uploads directory
-    if [ ! -d "$VERIFY_DIR/$BACKUP_DIR/uploads" ]; then
+    if [ ! -d "$verify_dir/$backup_tag/uploads" ]; then
         echo "ERROR: Uploads directory is missing!"
+        rm -rf "$verify_dir"
         exit 1
     fi
+
+    # Clean up verification directory
+    rm -rf "$verify_dir"
 }
 
 fireflyiii_restore_backup_docker() {
@@ -173,12 +177,13 @@ fireflyiii_restore_backup_docker() {
 
     # Extract the backup
     echo "Extracting backup..."
+    rm -rf "$RESTORE_DIR"
     mkdir -p "$RESTORE_DIR"
     tar -xzf "$BACKUP_FILE" -C "$RESTORE_DIR"
 
-    # Find the extracted directory (it should be named with a date)
-    EXTRACTED_DIR=$(ls "$RESTORE_DIR/firefly_backups")
-    FULL_RESTORE_PATH="$RESTORE_DIR/firefly_backups/$EXTRACTED_DIR"
+    # Find the extracted directory
+    EXTRACTED_DIR=$(ls "$RESTORE_DIR" | head -n 1)
+    FULL_RESTORE_PATH="$RESTORE_DIR/$EXTRACTED_DIR"
 
     # Verify backup contents
     if [ ! -f "$FULL_RESTORE_PATH/database.sql" ]; then
