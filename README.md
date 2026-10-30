@@ -10,6 +10,7 @@ cp .env.example .env
 
 # Copy per-service templates (only for services you are going to use)
 cp services/dns/.env.example services/dns/.env
+cp services/dns/pihole/.env.pihole.example services/dns/pihole/.env.pihole
 cp services/external_ddns/.env.example services/external_ddns/.env
 cp services/ingress/.env.example services/ingress/.env
 cp services/vpn/.env.example services/vpn/.env

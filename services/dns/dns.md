@@ -5,35 +5,75 @@ network level.
 
 ## Pi-hole
 
-- [Official Site](https://pi-hole)
+- [Official Site](https://pi-hole.net)
 - [Official metal installation documentation](https://docs.pi-hole.net/main/basic-install/)
 - [Official Docker installation documentation](https://github.com/pi-hole/docker-pi-hole)
 
-One the service is ready you can access the admin interface at
-`http://localhost/admin`
-
 ### Deployment
 
-#### Bare-metal deployment
+#### Docker Compose
+
+- [Deployment documentation](https://docs.pi-hole.net/docker/)
+
+Create the environment files from the templates and set at least the web
+interface password.
+
+```shell
+cp services/dns/.env.example services/dns/.env
+cp services/dns/pihole/.env.pihole.example services/dns/pihole/.env.pihole
+make dns
+```
+
+The container is attached to the `${PROJECT}` docker network, so the ingress
+service must be deployed first (it creates the network). Ports 80 and 443 are
+left to the ingress service, the web interface is published on
+`PIHOLE_WEB_INTERFACE_PORT`.
+
+Port 53 must be free on the host. On systems with `systemd-resolved` disable
+its stub listener first:
+
+```shell
+sudo sed -r -i.orig 's/#?DNSStubListener=yes/DNSStubListener=no/g' /etc/systemd/resolved.conf
+sudo sh -c 'rm /etc/resolv.conf && ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf'
+sudo systemctl restart systemd-resolved
+```
+
+#### Bare-metal
 
 ```shell
 curl -sSL https://install.pi-hole.net | bash
 sudo usermod -aG pihole "$USER"
 ```
 
-#### Docker Compose deployment
+### Backup and restore
 
-The `docker-compose.yml` file in this directory contains a service definition.
-Remenber to set the environment variables in a `.env` file.
+#### Docker Compose
+
+Backups use Pi-hole Teleporter, which exports the configuration, lists,
+groups, clients and DHCP leases. The query log database is not included.
 
 ```shell
-docker compose up -d
+make backup-dns    # Creates $PIHOLE_BACKUP_PATH/<YYYYMMDD>.zip and its checksum
+make restore-dns   # Imports the newest backup and restarts the container
 ```
 
 ### Update
 
-#### Bare-metal update
+#### Docker Compose
+
+```shell
+docker compose pull pihole
+make dns
+```
+
+#### Bare-metal
 
 ```shell
 pihole -up
 ```
+
+### Web browser interfaces
+
+- [Pi-hole](http://localhost:10083/admin)
+
+---
