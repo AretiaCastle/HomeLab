@@ -26,6 +26,7 @@ Every file has its `<file>.sha256`, checked before any restore.
 | --------- | ------------------- | --------- | ------------------------------- |
 | `dns`     | Pi-hole             | ✅        | Teleporter (`.zip`)             |
 | `ingress` | Nginx Proxy Manager | ✅        | —                               |
+| `vpn`     | WGDashboard         | ✅        | —                               |
 | `pfm`     | Firefly III         | ✅        | Database dump + uploads (`.tar.gz`) |
 
 Tools that are not deployed on the host are skipped.

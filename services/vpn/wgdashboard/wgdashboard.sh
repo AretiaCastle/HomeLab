@@ -1,27 +1,58 @@
 #!/bin/bash
 
-wgdashboard_baremetal_deployment(){
-    #WGDashboard setup
-    sudo apt install git iptables wireguard-tools net-tools && \
-    sudo apt update && \
-    git clone https://github.com/donaldzou/WGDashboard.git "$DEPLOYMENTS_BASE_PATH/WGDashboard"
-    
-    chmod +x "$DEPLOYMENTS_BASE_PATH/WGDashboard/src/wgd.sh"
-    cd "$DEPLOYMENTS_BASE_PATH/WGDashboard/src" && ./wgd.sh install
+WGDASHBOARD_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+WGDASHBOARD_COMPOSE_PROJECT="${PROJECT}-wgdashboard"
+WGDASHBOARD_ENV_FILE="$WGDASHBOARD_FOLDER/.env.wgdashboard"
 
-    # Start the service
-    cd "$DEPLOYMENTS_BASE_PATH/WGDashboard/src" && ./wgd.sh start
+check_wgdashboard_env_files(){
+    if [[ ! -f "$WGDASHBOARD_ENV_FILE" ]]; then
+        echo "ERROR: missing file $WGDASHBOARD_ENV_FILE" >&2
+        return 1
+    fi
+
+    return 0
 }
 
-# TODO 
-wgdashboard_docker_deployment(){
-    echo "WIP"
+wgdashboard_deploy_docker(){
+    check_wgdashboard_env_files || exit 1
+
+    mkdir -p "$WGDASHBOARD_ACONF_VOLUME_PATH"
+    mkdir -p "$WGDASHBOARD_CONF_VOLUME_PATH"
+    mkdir -p "$WGDASHBOARD_DATA_VOLUME_PATH"
+
+    docker compose \
+        -p "$WGDASHBOARD_COMPOSE_PROJECT" \
+        --project-directory "$WGDASHBOARD_FOLDER" \
+        -f "$WGDASHBOARD_FOLDER/docker-compose.yml" \
+        up -d
 }
 
-wgdashboard_stop(){
-    echo "TODO: implement WGDashboard stop"
+wgdashboard_stop_docker(){
+    docker compose \
+        -p "$WGDASHBOARD_COMPOSE_PROJECT" \
+        --project-directory "$WGDASHBOARD_FOLDER" \
+        -f "$WGDASHBOARD_FOLDER/docker-compose.yml" \
+        stop
 }
 
-wgdashboard_clean(){
-    echo "TODO: implement WGDashboard clean"
+wgdashboard_clean_docker(){
+    docker compose \
+        -p "$WGDASHBOARD_COMPOSE_PROJECT" \
+        --project-directory "$WGDASHBOARD_FOLDER" \
+        -f "$WGDASHBOARD_FOLDER/docker-compose.yml" \
+        down --volumes
+}
+
+wgdashboard_backup_docker(){
+    if ! docker_project_deployed "$WGDASHBOARD_COMPOSE_PROJECT"; then
+        echo "WGDashboard is not deployed, skipping backup"
+        return 0
+    fi
+
+    docker_volumes_backup "$WGDASHBOARD_COMPOSE_PROJECT" "$WGDASHBOARD_BASE_VOLUMES_PATH" "$WGDASHBOARD_BACKUP_PATH" || exit 1
+}
+
+# $1 Backup file name (optional, newest volumes backup by default)
+wgdashboard_restore_docker(){
+    docker_restore "$WGDASHBOARD_COMPOSE_PROJECT" "$WGDASHBOARD_BASE_VOLUMES_PATH" "$WGDASHBOARD_BACKUP_PATH" "$1" || exit 1
 }
