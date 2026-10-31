@@ -3,6 +3,7 @@
 ```text
 HomeLab/
 ├── makefile              # Entry point for every action
+├── AGENTS.md             # Guidelines for AI agents (imported by CLAUDE.md)
 ├── requirements.txt      # Commands checked by `make check`
 ├── .env                  # Global configuration
 ├── logs/                 # Logs of every make execution
