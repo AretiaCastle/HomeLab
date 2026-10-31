@@ -39,6 +39,9 @@ services.
 - Service scripts accept `deploy`, `stop`, `clean`, `backup` and `restore`,
   each one with its target in the `makefile`. A new service needs all five
   targets and an entry in `statics/help.txt`.
+- Backups use [lib/backup.sh](lib/backup.sh): every docker tool implements
+  backup and restore with `docker_volumes_backup` and `docker_restore`, plus
+  an application export when it has one. See [docs/backups.md](docs/backups.md).
 - Configuration goes in `services/<service>/.env.example`; container variables
   in `.env.<tool>.example`. Never commit real `.env` files.
 

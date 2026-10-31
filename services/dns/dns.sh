@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DNS_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$DNS_SERVICE_FOLDER/../../lib/backup.sh"
 source "$DNS_SERVICE_FOLDER/pihole/pihole.sh"
 
 dns_deploy(){
@@ -20,7 +21,7 @@ dns_backup(){
 }
 
 dns_restore(){
-    pihole_restore_backup_docker
+    pihole_restore_backup_docker "$1"
 }
 
 action="${1:-deploy}"
@@ -39,7 +40,7 @@ case "$action" in
 		dns_backup
 		;;
 	restore)
-		dns_restore
+		dns_restore "$2"
 		;;
 	*)
 		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2

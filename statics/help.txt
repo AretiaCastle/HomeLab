@@ -12,6 +12,7 @@ Service actions (replace <service> with one of the services below):
   make clean-<service>          - Stop and remove containers and volumes
   make backup-<service>         - Create a backup of the service
   make restore-<service>        - Restore the newest backup of the service
+                                  (BACKUP=<file> to restore a given one)
 
 Services:
   vpn                           - WireGuard + WGDashboard
@@ -20,6 +21,11 @@ Services:
   external_ddns                 - Duck DNS
   pfm                           - Firefly III
   torrent                       - qBittorrent, Jackett, Sonarr, Radarr (WIP)
+
+Backups:
+  make backup-all               - Backup of every service
+  make schedule-backups         - Run backup-all on BACKUP_SCHEDULE with cron
+  make unschedule-backups       - Remove the scheduled backups
 
 Management:
   make status                   - Show the containers of the project

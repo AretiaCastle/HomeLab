@@ -43,7 +43,7 @@ case "$action" in
         torrent_backup
         ;;
     restore)
-        torrent_restore
+        torrent_restore "$2"
         ;;
     *)
         echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2

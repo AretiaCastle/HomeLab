@@ -39,7 +39,7 @@ case "$action" in
 		external_ddns_backup
 		;;
 	restore)
-		external_ddns_restore
+		external_ddns_restore "$2"
 		;;
 	*)
 		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2

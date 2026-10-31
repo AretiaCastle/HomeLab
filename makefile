@@ -1,4 +1,5 @@
 .PHONY: help check check_env check_commands status logs \
+		backup-all schedule-backups unschedule-backups \
 		external_ddns stop-external_ddns clean-external_ddns backup-external_ddns restore-external_ddns \
 		dns stop-dns clean-dns backup-dns restore-dns \
 		ingress stop-ingress clean-ingress backup-ingress restore-ingress \
@@ -12,6 +13,8 @@ SERVICES_DIR := $(BASE_DIR)/services
 ENV_FILE := $(BASE_DIR)/.env
 LOG_DIR := $(BASE_DIR)/logs
 LOG_FILE := $(LOG_DIR)/log-$(shell date +%Y%m%d_%H-%M-%S).log
+SERVICES := external_ddns dns vpn ingress torrent pfm
+BACKUP_CRON_MARKER := \# HomeLab backup-all
 
 ################################################################################
 # Functions
@@ -87,14 +90,15 @@ define backup_service
 	@$(call log, Backup for $(1) service finished)
 endef
 
-# Restore service.
+# Restore service. The backup file name is taken from BACKUP, if it is empty
+# the newest backup is restored.
 # $(1): Display name (e.g. Ingress)
 # $(2): Service directory (e.g. ingress)
 # $(3): Script name (e.g. ingress.sh)
 define restore_service
 	@$(call log, Restoring backup of $(1) service...)
 	@$(call load_env,$(2)); \
-	bash $(SERVICES_DIR)/$(2)/$(3) restore
+	bash $(SERVICES_DIR)/$(2)/$(3) restore "$(BACKUP)"
 	@$(call log, Backup restored for $(1) service)
 endef
 
@@ -216,6 +220,38 @@ backup-pfm: check
 	$(call backup_service,Personal Finance Manager,pfm,pfm.sh)
 restore-pfm: check
 	$(call restore_service,Personal Finance Manager,pfm,pfm.sh)
+
+#####################
+## Backup actions ##
+#####################
+
+# Backup of every service, keeps going if one of them fails
+backup-all: check
+	@$(call log, Creating backup of all services...)
+	@failed=""; \
+	for service in $(SERVICES); do \
+		$(MAKE) --no-print-directory backup-$$service LOG_FILE=$(LOG_FILE) || failed="$$failed $$service"; \
+	done; \
+	if [ -n "$$failed" ]; then \
+		$(call log, ERROR: backup failed for:$$failed); \
+		exit 1; \
+	fi
+	@$(call log, Backup of all services finished)
+
+# Install (or replace) the cron task that runs backup-all on BACKUP_SCHEDULE
+schedule-backups: check
+	@$(call load_env,); \
+	cron_filepath="$${CRON_FILEPATH:-/etc/crontab}"; \
+	cron_task="$${BACKUP_SCHEDULE:-30 3 * * *}   $$USER    make -C $(BASE_DIR) backup-all >> $(LOG_DIR)/backup-all.log 2>&1 $(BACKUP_CRON_MARKER)"; \
+	sudo sed -i '/$(BACKUP_CRON_MARKER)$$/d' "$$cron_filepath"; \
+	echo "$$cron_task" | sudo tee -a "$$cron_filepath" > /dev/null; \
+	$(call log, Backups scheduled in $$cron_filepath: $$cron_task)
+
+unschedule-backups: check
+	@$(call load_env,); \
+	cron_filepath="$${CRON_FILEPATH:-/etc/crontab}"; \
+	sudo sed -i '/$(BACKUP_CRON_MARKER)$$/d' "$$cron_filepath"; \
+	$(call log, Backups unscheduled from $$cron_filepath)
 
 #################################
 ## Management and Logs actions ##

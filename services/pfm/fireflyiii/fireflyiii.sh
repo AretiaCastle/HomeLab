@@ -65,163 +65,106 @@ fireflyiii_clean_docker(){
         down --volumes
 }
 
-fireflyiii_backup_docker() {
+# Database dump and uploads export
+fireflyiii_export_docker(){
     load_fireflyiii_env || return 1
 
-    # Validate password by trying to list databases
-    echo "Database password: $MYSQL_PASSWORD"
-    if ! docker exec -i fireflyiii_db mariadb -u firefly -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
-        echo "Error: Invalid database password"
-        exit 1
-    fi
-    
-    # Create backup directory
-    local backup_tag="$(date +%Y%m%d)"
-    BACKUP_DIR="$FIREFLYIII_BACKUP_PATH/$backup_tag"
-    mkdir -p "$BACKUP_DIR"
+    local backup_tag="export-$(backup_timestamp)"
+    local work_dir="$FIREFLYIII_BACKUP_PATH/$backup_tag"
+    local backup_file="$work_dir.tar.gz"
+    mkdir -p "$work_dir"
 
-    # Database backup
-    echo "Creating database backup..."
-    docker exec fireflyiii_db mariadb-dump -u firefly -p"${MYSQL_PASSWORD}" firefly > "$BACKUP_DIR/database.sql"
-
-    # Upload directory backup
-    echo "Creating uploads backup..."
-    docker cp fireflyiii_core:/var/www/html/storage/upload "$BACKUP_DIR/uploads"
-
-    # Compress the backup (using relative path with -C)
-    echo "Compressing backup..."
-    tar -czf "$BACKUP_DIR.tar.gz" -C "$FIREFLYIII_BACKUP_PATH" "$backup_tag"
-
-    # Verify the backup
-    echo "Verifying backup..."
-    verify_fireflyiii_docker_backup "$backup_tag"
-
-    # Calculate and store checksums
-    echo "Calculating checksums..."
-    sha256sum "$BACKUP_DIR.tar.gz" > "$BACKUP_DIR.tar.gz.sha256"
-
-    # Remove the uncompressed backup directory
-    rm -rf "$BACKUP_DIR"
-
-    echo "Backup verification completed successfully!"
-    echo "Backup file: $BACKUP_DIR.tar.gz"
-    echo "Checksum file: $BACKUP_DIR.tar.gz.sha256"
-    echo ""
-    echo "Backup contents verified:"
-    echo "- Database dump present and contains required tables"
-    echo "- Uploads directory present"
-    echo "- Backup integrity verified via checksum"
-}
-
-verify_fireflyiii_docker_backup() {
-    local backup_tag="$1"
-    local verify_dir="$FIREFLYIII_BACKUP_PATH/verify_temp"
-    mkdir -p "$verify_dir"
-
-    # Extract the backup
-    tar -xzf "$BACKUP_DIR.tar.gz" -C "$verify_dir"
-
-    # Verify database dump
-    if [ ! -s "$verify_dir/$backup_tag/database.sql" ]; then
-        echo "ERROR: Database dump is empty or missing!"
-        rm -rf "$verify_dir"
-        exit 1
+    echo "Creating database dump..."
+    if ! docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" fireflyiii_db \
+        mariadb-dump -u "$MYSQL_USER" "$MYSQL_DATABASE" > "$work_dir/database.sql"; then
+        echo "ERROR: database dump failed!" >&2
+        rm -rf "$work_dir"
+        return 1
     fi
 
     # Check for essential database tables
-    echo "Checking database content..."
-    REQUIRED_TABLES=("users" "accounts" "transactions")
-    for table in "${REQUIRED_TABLES[@]}"; do
-        if ! grep -q "CREATE TABLE \`$table\`" "$verify_dir/$backup_tag/database.sql"; then
-            echo "ERROR: Required table '$table' not found in database dump!"
-            rm -rf "$verify_dir"
-            exit 1
+    local table
+    for table in users accounts transactions; do
+        if ! grep -q "CREATE TABLE \`$table\`" "$work_dir/database.sql"; then
+            echo "ERROR: required table '$table' not found in database dump!" >&2
+            rm -rf "$work_dir"
+            return 1
         fi
     done
 
-    # Verify uploads directory
-    if [ ! -d "$verify_dir/$backup_tag/uploads" ]; then
-        echo "ERROR: Uploads directory is missing!"
-        rm -rf "$verify_dir"
-        exit 1
-    fi
+    echo "Copying uploads..."
+    docker cp fireflyiii_core:/var/www/html/storage/upload "$work_dir/uploads"
 
-    # Clean up verification directory
-    rm -rf "$verify_dir"
+    tar -czf "$backup_file" -C "$FIREFLYIII_BACKUP_PATH" "$backup_tag"
+    rm -rf "$work_dir"
+
+    backup_write_checksum "$backup_file"
+    backup_prune "$FIREFLYIII_BACKUP_PATH" export
+
+    echo "Backup file: $backup_file"
 }
 
-fireflyiii_restore_backup_docker() {
+# Database dump and uploads import
+# $1 Export file path
+fireflyiii_import_docker(){
+    local backup_file="$1"
+    local backup_tag="$(basename "$backup_file" .tar.gz)"
+
     load_fireflyiii_env || return 1
 
-    local backup_name="$1"
-    # If no backup file is provided, pick the newest date-based backup name.
-    if [[ -z "$backup_name" ]]; then
-        backup_name=$(find "$FIREFLYIII_BACKUP_PATH" -maxdepth 1 -type f -name "*.tar.gz" -printf "%f\n" 2>/dev/null | sort -r | head -n 1)
-
-        if [[ -z "$backup_name" ]]; then
-            echo "ERROR: No backup files found in $FIREFLYIII_BACKUP_PATH" >&2
-            exit 1
-        fi
-
-        echo "No backup provided. Using latest backup: $backup_name"
+    if ! docker_project_running "$FIREFLYIII_COMPOSE_PROJECT"; then
+        echo "ERROR: Firefly III is not running" >&2
+        return 1
     fi
 
-    # Validate password by trying to list databases
-    echo "Database password: $MYSQL_PASSWORD"
-    if ! docker exec -i fireflyiii_db mariadb -u firefly -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" > /dev/null 2>&1; then
-        echo "Error: Invalid database password"
-        exit 1
+    local restore_dir="$(mktemp -d -p "$FIREFLYIII_BACKUP_PATH")"
+    tar -xzf "$backup_file" -C "$restore_dir"
+    local restore_path="$restore_dir/$backup_tag"
+
+    if [[ ! -f "$restore_path/database.sql" || ! -d "$restore_path/uploads" ]]; then
+        echo "ERROR: database dump or uploads missing in $backup_file" >&2
+        rm -rf "$restore_dir"
+        return 1
     fi
 
-    BACKUP_FILE="$FIREFLYIII_BACKUP_PATH/$backup_name"
-    RESTORE_DIR="$FIREFLYIII_BACKUP_PATH/firefly_restore_temp"
-
-    # Extract the backup
-    echo "Extracting backup..."
-    rm -rf "$RESTORE_DIR"
-    mkdir -p "$RESTORE_DIR"
-    tar -xzf "$BACKUP_FILE" -C "$RESTORE_DIR"
-
-    # Find the extracted directory
-    EXTRACTED_DIR=$(ls "$RESTORE_DIR" | head -n 1)
-    FULL_RESTORE_PATH="$RESTORE_DIR/$EXTRACTED_DIR"
-
-    # Verify backup contents
-    if [ ! -f "$FULL_RESTORE_PATH/database.sql" ]; then
-        echo "ERROR: Database backup file not found!"
-        rm -rf "$RESTORE_DIR"
-        exit 1
-    fi
-
-    if [ ! -d "$FULL_RESTORE_PATH/uploads" ]; then
-        echo "ERROR: Uploads directory not found!"
-        rm -rf "$RESTORE_DIR"
-        exit 1
-    fi
-
-    # Restore database
     echo "Restoring database..."
-    cat "$FULL_RESTORE_PATH/database.sql" | docker exec -i fireflyiii_db mariadb -u firefly -p"${MYSQL_PASSWORD}" firefly
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Database restore failed!"
-        rm -rf "$RESTORE_DIR"
-        exit 1
+    if ! docker exec -i -e MYSQL_PWD="$MYSQL_PASSWORD" fireflyiii_db \
+        mariadb -u "$MYSQL_USER" "$MYSQL_DATABASE" < "$restore_path/database.sql"; then
+        echo "ERROR: database restore failed!" >&2
+        rm -rf "$restore_dir"
+        return 1
     fi
 
-    # Restore uploads
     echo "Restoring uploads..."
-    docker cp "$FULL_RESTORE_PATH/uploads/." fireflyiii_core:/var/www/html/storage/upload/
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Uploads restore failed!"
-        rm -rf "$RESTORE_DIR"
-        exit 1
+    if ! docker cp "$restore_path/uploads/." fireflyiii_core:/var/www/html/storage/upload/; then
+        echo "ERROR: uploads restore failed!" >&2
+        rm -rf "$restore_dir"
+        return 1
     fi
 
-    # Cleanup
-    echo "Cleaning up temporary files..."
-    rm -rf "$RESTORE_DIR"
+    rm -rf "$restore_dir"
 
     echo "Restore completed successfully!"
     echo "Restarting Firefly III container..."
     docker restart fireflyiii_core
+}
+
+fireflyiii_backup_docker(){
+    if ! docker_project_deployed "$FIREFLYIII_COMPOSE_PROJECT"; then
+        echo "Firefly III is not deployed, skipping backup"
+        return 0
+    fi
+
+    if docker_project_running "$FIREFLYIII_COMPOSE_PROJECT"; then
+        fireflyiii_export_docker || exit 1
+    else
+        echo "WARNING: Firefly III is not running, skipping database export" >&2
+    fi
+
+    docker_volumes_backup "$FIREFLYIII_COMPOSE_PROJECT" "$FIREFLYIII_BASE_VOLUMES_PATH" "$FIREFLYIII_BACKUP_PATH" || exit 1
+}
+
+# $1 Backup file name (optional, newest volumes backup by default)
+fireflyiii_restore_backup_docker(){
+    docker_restore "$FIREFLYIII_COMPOSE_PROJECT" "$FIREFLYIII_BASE_VOLUMES_PATH" "$FIREFLYIII_BACKUP_PATH" "$1" fireflyiii_import_docker || exit 1
 }

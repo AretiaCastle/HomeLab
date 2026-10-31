@@ -8,6 +8,8 @@ HomeLab/
 ├── .env                  # Global configuration
 ├── logs/                 # Logs of every make execution
 ├── docs/                 # Internal documentation
+├── lib/
+│   └── backup.sh         # Shared backup functions
 ├── statics/
 │   └── help.txt          # Output of `make help`
 └── services/
@@ -25,8 +27,8 @@ HomeLab/
 
 Configuration is layered:
 
-1. `.env` (required): shared values such as `PROJECT` and the base paths for
-   volumes and backups.
+1. `.env` (required): shared values such as `PROJECT`, the base paths for
+   volumes and backups, and the backup retention and schedule.
 2. `services/<service>/.env` (optional): values of that service. It can use and
    override the global ones.
 

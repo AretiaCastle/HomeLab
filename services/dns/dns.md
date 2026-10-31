@@ -40,14 +40,14 @@ sudo usermod -aG pihole "$USER"
 
 ### Backup and restore
 
-#### Docker Compose
-
-Backups use Pi-hole Teleporter, which exports the configuration, lists,
-groups, clients and DHCP leases. The query log database is not included.
+Besides the cold copy of its volumes, the backup includes a Teleporter export
+(configuration, lists, groups, clients and DHCP leases, without the query log).
+See [backups](../../docs/backups.md).
 
 ```shell
-make backup-dns    # Creates $PIHOLE_BACKUP_PATH/<YYYYMMDD>.zip and its checksum
-make restore-dns   # Imports the newest backup and restarts the container
+make backup-dns
+make restore-dns                              # Newest cold copy
+make restore-dns BACKUP=export-<timestamp>.zip # Import a Teleporter export
 ```
 
 ### Update

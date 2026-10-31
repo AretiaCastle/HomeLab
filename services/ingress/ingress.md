@@ -26,6 +26,16 @@ The proxy does not share any docker network with the other services. It
 forwards the traffic to the port each service publishes on its host, so the
 services can live on a different machine than the ingress.
 
+### Backup and restore
+
+Cold copy of its volumes (configuration, database and certificates). See
+[backups](../../docs/backups.md).
+
+```shell
+make backup-ingress
+make restore-ingress
+```
+
 ### Proxy host configuration
 
 Once your service is running and publishing its port on the host, you can

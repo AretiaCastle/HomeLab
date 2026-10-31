@@ -38,6 +38,9 @@ make backup-<service>    # Create a backup
 make restore-<service>   # Restore the newest backup
 ```
 
+Backups of all the services deployed on the host can be scheduled with
+`make schedule-backups`.
+
 For example:
 
 ```bash
@@ -51,6 +54,7 @@ Run `make help` for the full list of targets.
 ## Documentation
 
 - [Architecture](docs/architecture.md): deployment, networking and ports.
+- [Backups](docs/backups.md): backup types, restore, retention and scheduling.
 - [Project structure](docs/project-structure.md): layout, environment files and
   how to add a service.
 

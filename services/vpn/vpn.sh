@@ -43,7 +43,7 @@ case "$action" in
 		vpn_backup
 		;;
 	restore)
-		vpn_restore
+		vpn_restore "$2"
 		;;
 	*)
 		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 INGRESS_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$INGRESS_SERVICE_FOLDER/../../lib/backup.sh"
 source "$INGRESS_SERVICE_FOLDER/nginx/nginx.sh"
 
 ingress_deploy(){
@@ -16,11 +17,11 @@ ingress_clean(){
 }
 
 ingress_backup(){
-	echo "TODO: implement Ingress backup"
+	nginx_proxy_backup_docker
 }
 
 ingress_restore(){
-	echo "TODO: implement Ingress restore"
+	nginx_proxy_restore_docker "$1"
 }
 
 action="${1:-deploy}"
@@ -39,7 +40,7 @@ case "$action" in
 		ingress_backup
 		;;
 	restore)
-		ingress_restore
+		ingress_restore "$2"
 		;;
 	*)
 		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
