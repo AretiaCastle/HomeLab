@@ -42,6 +42,6 @@ chmod +x restore_firefly_docker.sh
 
 ### Web browser interfaces
 
-- [Firefly III](http://localhost)
+- [Firefly III](http://localhost:10101)
 
 ---

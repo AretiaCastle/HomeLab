@@ -1,12 +1,13 @@
 #!/bin/bash
 
 NGINX_PROXY_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+NGINX_PROXY_COMPOSE_PROJECT="${PROJECT}-nginx"
 
 nginx_proxy_deployment_docker(){
     mkdir -p "$NGINX_PROXY_DATA_PATH"
     mkdir -p "$NGINX_PROXY_LETSENCRYPT_PATH"
 
-    docker compose -p "${PROJECT}" -f "$NGINX_PROXY_FOLDER/docker-compose.yml" up -d
+    docker compose -p "$NGINX_PROXY_COMPOSE_PROJECT" -f "$NGINX_PROXY_FOLDER/docker-compose.yml" up -d
 
     # Automated backup
     mkdir -p "$NGINX_PROXY_BACKUP_PATH"
@@ -30,14 +31,14 @@ nginx_proxy_deployment_docker(){
 
 nginx_proxy_stop_docker(){
     docker compose \
-        -p "${PROJECT}" \
+        -p "$NGINX_PROXY_COMPOSE_PROJECT" \
         -f "$NGINX_PROXY_FOLDER/docker-compose.yml" \
         stop
 }
 
 nginx_proxy_cleanup_docker(){
     docker compose \
-        -p "${PROJECT}" \
+        -p "$NGINX_PROXY_COMPOSE_PROJECT" \
         -f "$NGINX_PROXY_FOLDER/docker-compose.yml" \
         down --volumes
 }

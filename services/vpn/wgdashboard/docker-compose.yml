@@ -5,7 +5,7 @@ services:
     container_name: wgdashboard
 
     ports:
-      - "${WGDASHBOARD_WEB_INTERFACE_PORT}:${WGDASHBOARD_WEB_INTERFACE_PORT}/tcp"
+      - "${WGDASHBOARD_WEB_INTERFACE_PORT}:10086/tcp"
       - "${WGDASHBOARD_VPN_PORT}:${WGDASHBOARD_VPN_PORT}/udp"
 
     volumes:

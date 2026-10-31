@@ -1,0 +1,28 @@
+HomeLab Deployment Makefile
+
+Usage: make <target>
+
+General:
+  make help                     - Show this help
+  make check                    - Check .env and required commands
+
+Service actions (replace <service> with one of the services below):
+  make <service>                - Deploy the service
+  make stop-<service>           - Stop the service
+  make clean-<service>          - Stop and remove containers and volumes
+  make backup-<service>         - Create a backup of the service
+  make restore-<service>        - Restore the newest backup of the service
+
+Services:
+  vpn                           - WireGuard + WGDashboard
+  dns                           - Pi-hole
+  ingress                       - Nginx Proxy Manager
+  external_ddns                 - Duck DNS
+  pfm                           - Firefly III
+  torrent                       - qBittorrent, Jackett, Sonarr, Radarr (WIP)
+
+Management:
+  make status                   - Show the containers of the project
+  make logs CONTAINER=<name>    - Follow the logs of a container
+
+Note: execution logs are saved in logs/log-YYYYMMDD_HH-MM-SS.log

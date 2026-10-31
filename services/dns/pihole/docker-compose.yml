@@ -15,8 +15,6 @@ services:
       - pihole_etc:/etc/pihole
     env_file:
       - ./.env.pihole
-    networks:
-      - edge
 
 volumes:
   pihole_etc:
@@ -25,8 +23,3 @@ volumes:
       type: none
       o: bind
       device: "$PIHOLE_ETC_PATH"
-
-networks:
-  edge:
-    external: true
-    name: "${PROJECT}"

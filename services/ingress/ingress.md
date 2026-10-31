@@ -10,33 +10,8 @@
 
 - [Deployment documentation](https://nginxproxymanager.com/setup/)
 
-The deployment with docker compose and this configuration creates a network
-named like the configured project in `PROJECT`. This network must be in all the other services that
-are deployed with docker and need their traffic to be routed through the proxy.
-If a container it is not in this network, that service could not work with the
-`nginx` deployed.
-
-When the ingress stack starts, Docker creates that network automatically. Other stacks
-that need to be reachable from the proxy must join it as an external network with:
-
 ```shell
-networks:
-    edge:
-        external: true
-        name: "${PROJECT}"
-```
-
-In order to list the names of the networks you could use:
-
-```shell
-docker network ls
-```
-
-Once the network is done use the following command to start the containers of
-the service:
-
-```shell
-docker compose up -d
+make ingress
 ```
 
 This setup produce this ports exposed:
@@ -45,19 +20,15 @@ This setup produce this ports exposed:
 | ----------- | --------------- | ----------------------- |
 | 80          | 80              | HTTP traffic            |
 | 443         | 443             | HTTPS traffic           |
-| 10081       | 81              | Administration Panel    |
+| 10083       | 81              | Administration Panel    |
 
-**Storage** of this service is configured to mount in fixed directories. To
-create these directories use:
-
-```shell
-sudo mkdir -p /mnt/docker/ingress/data
-sudo mkdir -p /mnt/docker/ingress/letsencrypt
-```
+The proxy does not share any docker network with the other services. It
+forwards the traffic to the port each service publishes on its host, so the
+services can live on a different machine than the ingress.
 
 ### Proxy host configuration
 
-Once your service container named like `youservice` is running, you can
+Once your service is running and publishing its port on the host, you can
 configure the routing rule through the web administration panel:
 
 1. Access to the proxy hosts panel.
@@ -68,8 +39,11 @@ configure the routing rule through the web administration panel:
 
     1. **Domain Name:** `yourdomain.com`.
     2. **Scheme:** HTTP/HTTPS (how nginx communicates with the container)
-    3. **Forward Hostname / IP:** `yourservice` (the name of the container within the Docker network).
-    4. **Forward Port:** 80 (the internal port that the container exposes).
+    3. **Forward Hostname / IP:** LAN IP of the machine running the service.
+       Do not use `localhost`, inside the proxy container it points to the
+       container itself.
+    4. **Forward Port:** the port published on that host (e.g. `10101` for
+       Firefly III).
     5. (Optional) Enable SSL with Let’s Encrypt in the SSL tab.
 
 4. Save the configuration.

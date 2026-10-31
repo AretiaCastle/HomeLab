@@ -1,6 +1,4 @@
-.PHONY: help check \ 
-		deploy-all deploy-network deploy-media deploy-finance \
-        stop clean status logs \
+.PHONY: help check check_env check_commands status logs \
 		external_ddns stop-external_ddns clean-external_ddns backup-external_ddns restore-external_ddns \
 		dns stop-dns clean-dns backup-dns restore-dns \
 		ingress stop-ingress clean-ingress backup-ingress restore-ingress \
@@ -109,7 +107,7 @@ endef
 
 # Default target
 help:
-	@cat $(BASE_DIR)/help.txt
+	@cat $(BASE_DIR)/statics/help.txt
 
 # Check requirements
 check_env:
@@ -219,36 +217,22 @@ backup-pfm: check
 restore-pfm: check
 	$(call restore_service,Personal Finance Manager,pfm,pfm.sh)
 
-# Predefined groups
-deploy-network: 
-	@$(call log, Deploying network services)
-	@$(call log, WIP)
-	@$(call log, Deployed network services)
-
-deploy-media: torrent
-	@$(call log, Deploying media services)
-	@$(call log, WIP)
-	@$(call log, Deployed media services)
-
-# Deploy all services
-deploy-all: 
-	@$(call log, Deploying all automatized services)
-	@$(call log, WIP)
-	@$(call log, Deployed all automatized services)
-
 #################################
 ## Management and Logs actions ##
 #################################
+# Containers of every compose project named "$PROJECT-<tool>"
 status:
-	@$(call log,Container status:)
-	@docker compose -p $(PROJECT_NAME) ps
+	@$(call load_env,); \
+	docker ps -a --filter "label=com.docker.compose.project" \
+		--format 'table {{.Label "com.docker.compose.project"}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}' \
+		| awk -v prefix="$$PROJECT-" 'NR == 1 || index($$1, prefix) == 1'
 
 logs:
-	@if [ -z "$(SERVICE)" ]; then \
-		$(call log,ERROR: Specify SERVICE=<name>); \
-		echo "Example: make logs SERVICE=nginx-proxy-manager"; \
+	@if [ -z "$(CONTAINER)" ]; then \
+		echo "ERROR: Specify CONTAINER=<name>"; \
+		echo "Example: make logs CONTAINER=pihole"; \
 		exit 1; \
 	fi
-	@docker compose -p $(PROJECT_NAME) logs -f $(SERVICE)
+	@docker logs -f $(CONTAINER)
 
 ################################################################################

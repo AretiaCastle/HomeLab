@@ -1,6 +1,7 @@
 #!/bin/bash
 
 FIREFLYIII_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FIREFLYIII_COMPOSE_PROJECT="${PROJECT}-fireflyiii"
 FIREFLYIII_ENV_FILE="$FIREFLYIII_FOLDER/.env.fireflyiii"
 FIREFLYIII_DB_ENV_FILE="$FIREFLYIII_FOLDER/.db.env.fireflyiii"
 
@@ -42,7 +43,7 @@ fireflyiii_deploy_docker(){
     sudo mkdir -p "$FIREFLYIII_DB_PATH"
     
     docker compose \
-        -p "${PROJECT}" \
+        -p "$FIREFLYIII_COMPOSE_PROJECT" \
         --project-directory "$FIREFLYIII_FOLDER" \
         -f "$FIREFLYIII_FOLDER/docker-compose.yml" \
         up -d
@@ -50,7 +51,7 @@ fireflyiii_deploy_docker(){
 
 fireflyiii_stop_docker(){
     docker compose \
-        -p "${PROJECT}" \
+        -p "$FIREFLYIII_COMPOSE_PROJECT" \
         --project-directory "$FIREFLYIII_FOLDER" \
         -f "$FIREFLYIII_FOLDER/docker-compose.yml" \
         stop
@@ -58,7 +59,7 @@ fireflyiii_stop_docker(){
 
 fireflyiii_clean_docker(){
     docker compose \
-        -p "${PROJECT}" \
+        -p "$FIREFLYIII_COMPOSE_PROJECT" \
         --project-directory "$FIREFLYIII_FOLDER" \
         -f "$FIREFLYIII_FOLDER/docker-compose.yml" \
         down --volumes

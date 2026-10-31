@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PIHOLE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PIHOLE_COMPOSE_PROJECT="${PROJECT}-pihole"
 PIHOLE_ENV_FILE="$PIHOLE_FOLDER/.env.pihole"
 PIHOLE_CONTAINER_TELEPORTER_DIR="/tmp/teleporter"
 
@@ -58,7 +59,7 @@ pihole_deploy_docker(){
     sudo mkdir -p "$PIHOLE_ETC_PATH"
 
     docker compose \
-        -p "${PROJECT}" \
+        -p "$PIHOLE_COMPOSE_PROJECT" \
         --project-directory "$PIHOLE_FOLDER" \
         -f "$PIHOLE_FOLDER/docker-compose.yml" \
         up -d
@@ -66,7 +67,7 @@ pihole_deploy_docker(){
 
 pihole_stop_docker(){
     docker compose \
-        -p "${PROJECT}" \
+        -p "$PIHOLE_COMPOSE_PROJECT" \
         --project-directory "$PIHOLE_FOLDER" \
         -f "$PIHOLE_FOLDER/docker-compose.yml" \
         stop
@@ -74,7 +75,7 @@ pihole_stop_docker(){
 
 pihole_clean_docker(){
     docker compose \
-        -p "${PROJECT}" \
+        -p "$PIHOLE_COMPOSE_PROJECT" \
         --project-directory "$PIHOLE_FOLDER" \
         -f "$PIHOLE_FOLDER/docker-compose.yml" \
         down --volumes

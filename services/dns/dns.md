@@ -15,19 +15,12 @@ network level.
 
 - [Deployment documentation](https://docs.pi-hole.net/docker/)
 
-Create the environment files from the templates and set at least the web
-interface password.
-
 ```shell
-cp services/dns/.env.example services/dns/.env
-cp services/dns/pihole/.env.pihole.example services/dns/pihole/.env.pihole
 make dns
 ```
 
-The container is attached to the `${PROJECT}` docker network, so the ingress
-service must be deployed first (it creates the network). Ports 80 and 443 are
-left to the ingress service, the web interface is published on
-`PIHOLE_WEB_INTERFACE_PORT`.
+Ports 80 and 443 are left to the ingress service, the web interface is
+published on `PIHOLE_WEB_INTERFACE_PORT`.
 
 Port 53 must be free on the host. On systems with `systemd-resolved` disable
 its stub listener first:
@@ -74,6 +67,6 @@ pihole -up
 
 ### Web browser interfaces
 
-- [Pi-hole](http://localhost:10083/admin)
+- [Pi-hole](http://localhost:10081/admin)
 
 ---
