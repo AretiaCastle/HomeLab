@@ -35,8 +35,6 @@ pihole_baremetal_deployment(){
 check_pihole_env_files(){
     if [[ ! -f "$PIHOLE_ENV_FILE" ]]; then
         echo "ERROR: missing file $PIHOLE_ENV_FILE" >&2
-        echo "Create it from template:" >&2
-        echo "  cp $PIHOLE_FOLDER/.env.pihole.example $PIHOLE_ENV_FILE" >&2
         return 1
     fi
 
@@ -56,7 +54,7 @@ pihole_deploy_docker(){
     check_pihole_env_files || exit 1
 
     # Pi-hole
-    sudo mkdir -p "$PIHOLE_ETC_PATH"
+    mkdir -p "$PIHOLE_ETC_PATH"
 
     docker compose \
         -p "$PIHOLE_COMPOSE_PROJECT" \

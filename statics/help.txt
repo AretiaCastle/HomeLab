@@ -34,4 +34,4 @@ Management:
   make status                   - Show the containers of the project
   make logs CONTAINER=<name>    - Follow the logs of a container
 
-Note: execution logs are saved in logs/log-YYYYMMDD_HH-MM-SS.log
+Note: execution logs are saved in logs/<YYYYMMDD_HHMMSS>-<target>.log

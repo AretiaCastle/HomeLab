@@ -3,7 +3,7 @@
 Backups are made per tool and stored in its backup directory (e.g.
 `$DEPLOYMENTS_BACKUPS_PATH/pihole`), and can be copied to a remote host. Common
 logic lives in [lib/backup.sh](../lib/backup.sh) and
-[lib/backup_remote.sh](../lib/backup_remote.sh).
+[scripts/backup_remote.sh](../scripts/backup_remote.sh).
 
 ## Backup types
 
@@ -105,9 +105,10 @@ make unschedule-backups   # Remove the scheduled task
 
 `schedule-backups` adds a single task to `CRON_FILEPATH` (`/etc/crontab` by
 default) using the cron expression in `BACKUP_SCHEDULE` (`30 3 * * *` by
-default). It runs `backup-all` and then `sync-backups`, which does nothing if
-the remote copy is not configured. Running it again replaces the task. The
-output of each run is appended to `logs/backup-all.log`.
+default). It runs `backup-all` and then `sync-backups`, even if some backup
+fails. `sync-backups` does nothing if the remote copy is not configured.
+Running it again replaces the task. Each run writes its own log file
+(`logs/<timestamp>-backup-all.log`).
 
 ## Adding backups to a tool
 

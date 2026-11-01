@@ -19,9 +19,6 @@ check_fireflyiii_env_files(){
     fi
 
     if [[ "$missing" == true ]]; then
-        echo "Create them from templates:" >&2
-        echo "  cp $FIREFLYIII_FOLDER/.env.fireflyiii.example $FIREFLYIII_ENV_FILE" >&2
-        echo "  cp $FIREFLYIII_FOLDER/.db.env.fireflyiii.example $FIREFLYIII_DB_ENV_FILE" >&2
         return 1
     fi
 
@@ -39,8 +36,8 @@ load_fireflyiii_env(){
 
 fireflyiii_deploy_docker(){
     # FireflyIII
-    sudo mkdir -p "$FIREFLYIII_UPLOAD_PATH"
-    sudo mkdir -p "$FIREFLYIII_DB_PATH"
+    mkdir -p "$FIREFLYIII_UPLOAD_PATH"
+    mkdir -p "$FIREFLYIII_DB_PATH"
     
     docker compose \
         -p "$FIREFLYIII_COMPOSE_PROJECT" \
