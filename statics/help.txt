@@ -24,8 +24,11 @@ Services:
 
 Backups:
   make backup-all               - Backup of every service
-  make schedule-backups         - Run backup-all on BACKUP_SCHEDULE with cron
+  make schedule-backups         - Run backup-all and sync-backups on BACKUP_SCHEDULE
   make unschedule-backups       - Remove the scheduled backups
+  make setup-remote-backups     - Create and install the ssh key for the remote copy
+  make sync-backups             - Copy the backups to the remote host
+  make fetch-backups            - Copy the backups from the remote host
 
 Management:
   make status                   - Show the containers of the project

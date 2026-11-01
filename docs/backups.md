@@ -1,8 +1,9 @@
 # Backups
 
 Backups are made per tool and stored in its backup directory (e.g.
-`$DEPLOYMENTS_BACKUPS_PATH/pihole`). Common logic lives in
-[lib/backup.sh](../lib/backup.sh).
+`$DEPLOYMENTS_BACKUPS_PATH/pihole`), and can be copied to a remote host. Common
+logic lives in [lib/backup.sh](../lib/backup.sh) and
+[lib/backup_remote.sh](../lib/backup_remote.sh).
 
 ## Backup types
 
@@ -50,17 +51,61 @@ To restore on a new host, deploy the service first and then restore it.
 After each backup only the newest `BACKUP_RETENTION` (global `.env`, 7 by
 default) files of each type are kept.
 
+## Remote copy
+
+The whole `DEPLOYMENTS_BACKUPS_PATH` can be copied to a remote host (e.g. a NAS)
+with rsync over ssh. It is configured in the global `.env`:
+
+| Variable                  | Description                                        |
+| ------------------------- | -------------------------------------------------- |
+| `BACKUP_REMOTE_USER`      | Remote user                                        |
+| `BACKUP_REMOTE_HOST`      | Remote host. Empty disables the remote copy        |
+| `BACKUP_REMOTE_PORT`      | Remote ssh port (22 by default)                    |
+| `BACKUP_REMOTE_PATH`      | Remote directory where the backups are stored      |
+| `BACKUP_REMOTE_SSH_KEY`   | Private key used for the copy                      |
+| `BACKUP_REMOTE_RETENTION` | Backups of each type kept in the remote host (30)  |
+
+The remote user needs ssh access with a shell, `rsync` installed and write
+permission on `BACKUP_REMOTE_PATH`.
+
+```bash
+make setup-remote-backups   # Generate the key, install it and create the remote path
+make sync-backups           # Copy local backups to the remote host
+make fetch-backups          # Copy remote backups to the local backups directory
+```
+
+`setup-remote-backups` generates a dedicated ed25519 key without passphrase
+(so scheduled runs can use it) in `BACKUP_REMOTE_SSH_KEY`, if it does not
+exist, and installs it with `ssh-copy-id`, asking the remote password once. If
+the remote host does not allow password login, add the printed public key to
+the remote user authorized keys (on most NAS from the user settings in its web
+interface) and run it again.
+
+`sync-backups` never mirrors deletions: an empty or partial local directory
+(e.g. on a new host) does not remove remote backups. The remote host keeps its
+own retention, applied after each sync.
+
+### Restore on a new host
+
+```bash
+make setup-remote-backups
+make fetch-backups
+make <service>
+make restore-<service>
+```
+
 ## Scheduling
 
 ```bash
-make schedule-backups     # Run backup-all on BACKUP_SCHEDULE
+make schedule-backups     # Run backup-all and sync-backups on BACKUP_SCHEDULE
 make unschedule-backups   # Remove the scheduled task
 ```
 
 `schedule-backups` adds a single task to `CRON_FILEPATH` (`/etc/crontab` by
 default) using the cron expression in `BACKUP_SCHEDULE` (`30 3 * * *` by
-default). Running it again replaces the task. The output of each run is
-appended to `logs/backup-all.log`.
+default). It runs `backup-all` and then `sync-backups`, which does nothing if
+the remote copy is not configured. Running it again replaces the task. The
+output of each run is appended to `logs/backup-all.log`.
 
 ## Adding backups to a tool
 

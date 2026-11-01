@@ -1,5 +1,6 @@
 .PHONY: help check check_env check_commands status logs \
 		backup-all schedule-backups unschedule-backups \
+		setup-remote-backups sync-backups fetch-backups \
 		external_ddns stop-external_ddns clean-external_ddns backup-external_ddns restore-external_ddns \
 		dns stop-dns clean-dns backup-dns restore-dns \
 		ingress stop-ingress clean-ingress backup-ingress restore-ingress \
@@ -238,11 +239,30 @@ backup-all: check
 	fi
 	@$(call log, Backup of all services finished)
 
-# Install (or replace) the cron task that runs backup-all on BACKUP_SCHEDULE
+# Remote backups (rsync over ssh)
+setup-remote-backups: check
+	@$(call log, Setting up remote backups...)
+	@$(call load_env,); \
+	bash $(BASE_DIR)/lib/backup_remote.sh setup
+
+sync-backups: check
+	@$(call log, Syncing backups to remote...)
+	@$(call load_env,); \
+	bash $(BASE_DIR)/lib/backup_remote.sh sync
+	@$(call log, Backups sync finished)
+
+fetch-backups: check
+	@$(call log, Fetching backups from remote...)
+	@$(call load_env,); \
+	bash $(BASE_DIR)/lib/backup_remote.sh fetch
+	@$(call log, Backups fetch finished)
+
+# Install (or replace) the cron task that runs backup-all and sync-backups on
+# BACKUP_SCHEDULE
 schedule-backups: check
 	@$(call load_env,); \
 	cron_filepath="$${CRON_FILEPATH:-/etc/crontab}"; \
-	cron_task="$${BACKUP_SCHEDULE:-30 3 * * *}   $$USER    make -C $(BASE_DIR) backup-all >> $(LOG_DIR)/backup-all.log 2>&1 $(BACKUP_CRON_MARKER)"; \
+	cron_task="$${BACKUP_SCHEDULE:-30 3 * * *}   $$USER    (make -C $(BASE_DIR) backup-all; make -C $(BASE_DIR) sync-backups) >> $(LOG_DIR)/backup-all.log 2>&1 $(BACKUP_CRON_MARKER)"; \
 	sudo sed -i '/$(BACKUP_CRON_MARKER)$$/d' "$$cron_filepath"; \
 	echo "$$cron_task" | sudo tee -a "$$cron_filepath" > /dev/null; \
 	$(call log, Backups scheduled in $$cron_filepath: $$cron_task)

@@ -9,7 +9,8 @@ HomeLab/
 ├── logs/                 # Logs of every make execution
 ├── docs/                 # Internal documentation
 ├── lib/
-│   └── backup.sh         # Shared backup functions
+│   ├── backup.sh         # Shared backup functions
+│   └── backup_remote.sh  # Backups copy to a remote host
 ├── statics/
 │   └── help.txt          # Output of `make help`
 └── services/

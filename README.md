@@ -39,7 +39,7 @@ make restore-<service>   # Restore the newest backup
 ```
 
 Backups of all the services deployed on the host can be scheduled with
-`make schedule-backups`.
+`make schedule-backups` and copied to a remote host such as a NAS.
 
 For example:
 
@@ -54,7 +54,8 @@ Run `make help` for the full list of targets.
 ## Documentation
 
 - [Architecture](docs/architecture.md): deployment, networking and ports.
-- [Backups](docs/backups.md): backup types, restore, retention and scheduling.
+- [Backups](docs/backups.md): backup types, restore, retention, remote copy
+  and scheduling.
 - [Project structure](docs/project-structure.md): layout, environment files and
   how to add a service.
 
