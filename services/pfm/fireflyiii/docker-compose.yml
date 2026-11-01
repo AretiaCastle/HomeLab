@@ -14,7 +14,7 @@ services:
       - fireflyiii_db
 
   fireflyiii_db:
-    image: mariadb:12.3.3
+    image: mariadb:13.0.2
     hostname: fireflyiii_db
     container_name: fireflyiii_db
     restart: always
