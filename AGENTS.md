@@ -31,6 +31,9 @@ Guidelines for AI agents working on this repository. Read
 - Persistent data uses named volumes bound to paths under
   `$<TOOL>_BASE_VOLUMES_PATH` (inside `$DEPLOYMENTS_DOCKER_VOLUMES`), defined in
   the service `.env`.
+- Images always have a fixed version tag, never `latest` nor moving tags like
+  `lts`. Updates are made changing the tag (see [docs/updates.md](docs/updates.md)).
+  New compose files must be added to [.github/dependabot.yml](.github/dependabot.yml).
 - Keep the container port fixed in `ports` and make only the host port
   configurable (`"${X_WEB_INTERFACE_PORT}:<container port>"`).
 - Files owned by other users (e.g. databases) are read or written from a helper
@@ -50,9 +53,10 @@ Guidelines for AI agents working on this repository. Read
 
 - Layout: `services/<service>/<service>.sh` plus one folder per tool with its
   `<tool>.sh`, `docker-compose.yml` and optional `.env.<tool>`.
-- Service scripts accept `deploy`, `stop`, `clean`, `backup` and `restore`
-  and delegate them to functions of their tools (`<tool>_deploy_docker`,
-  `<tool>_backup_docker`...).
+- Service scripts accept `deploy`, `stop`, `clean`, `backup`, `restore` and
+  `update`, and delegate them to functions of their tools
+  (`<tool>_deploy_docker`, `<tool>_update_docker`...). `update` pulls the
+  images and redeploys; `make` makes a backup before it.
 - Adding the service to `SERVICES` in the `makefile` creates its targets. It
   also needs an entry in `statics/help.txt`, the services table of
   `README.md` and, if it publishes ports or has backups, the tables of

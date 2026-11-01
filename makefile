@@ -8,7 +8,8 @@ SERVICES := external_ddns dns vpn ingress torrent pfm
 		$(addprefix stop-,$(SERVICES)) \
 		$(addprefix clean-,$(SERVICES)) \
 		$(addprefix backup-,$(SERVICES)) \
-		$(addprefix restore-,$(SERVICES))
+		$(addprefix restore-,$(SERVICES)) \
+		$(addprefix update-,$(SERVICES))
 
 # Keep the exit code of the commands piped to the log file
 SHELL := /bin/bash
@@ -58,6 +59,10 @@ $(addprefix backup-,$(SERVICES)): backup-%: check
 
 $(addprefix restore-,$(SERVICES)): restore-%: check
 	@$(RUN) service $* restore "$(BACKUP)" $(TO_LOG)
+
+# Backup and then update to the image versions of the compose files
+$(addprefix update-,$(SERVICES)): update-%: check
+	@$(RUN) update $* $(TO_LOG)
 
 #####################
 ## Backup actions ##

@@ -36,6 +36,15 @@ make backup-ingress
 make restore-ingress
 ```
 
+### Update
+
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
+
+```shell
+make update-ingress
+```
+
 ### Proxy host configuration
 
 Once your service is running and publishing its port on the host, you can

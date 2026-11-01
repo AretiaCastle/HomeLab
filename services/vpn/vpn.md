@@ -125,9 +125,11 @@ make restore-vpn
 
 ### Update
 
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
+
 ```shell
-docker compose pull wgdashboard
-make vpn
+make update-vpn
 ```
 
 ### Password reset

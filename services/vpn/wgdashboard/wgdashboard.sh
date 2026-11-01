@@ -27,6 +27,19 @@ wgdashboard_deploy_docker(){
         up -d
 }
 
+# Pull the images of the compose file and recreate the containers that changed
+wgdashboard_update_docker(){
+    check_wgdashboard_env_files || exit 1
+
+    docker compose \
+        -p "$WGDASHBOARD_COMPOSE_PROJECT" \
+        --project-directory "$WGDASHBOARD_FOLDER" \
+        -f "$WGDASHBOARD_FOLDER/docker-compose.yml" \
+        pull || exit 1
+
+    wgdashboard_deploy_docker
+}
+
 wgdashboard_stop_docker(){
     docker compose \
         -p "$WGDASHBOARD_COMPOSE_PROJECT" \

@@ -24,6 +24,10 @@ vpn_restore(){
 	wgdashboard_restore_docker "$1"
 }
 
+vpn_update(){
+	wgdashboard_update_docker
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -42,8 +46,11 @@ case "$action" in
 	restore)
 		vpn_restore "$2"
 		;;
+	update)
+		vpn_update
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
 		exit 1
 		;;
 esac

@@ -76,6 +76,20 @@ service_action(){
     fi
 }
 
+# Update a service after a backup, so it can be restored if the new version
+# fails. The update is cancelled if the backup fails.
+# $1 Service directory under services
+service_update(){
+    local service="$1"
+
+    if ! service_action "$service" backup; then
+        log "$service: update cancelled because the backup failed"
+        return 1
+    fi
+
+    service_action "$service" update
+}
+
 # Backup of every service, keeps going if one of them fails
 # $@ Services
 backup_all(){
@@ -147,6 +161,9 @@ case "$command" in
     service)
         service_action "$@"
         ;;
+    update)
+        service_update "$@"
+        ;;
     backup-all)
         backup_all "$@"
         ;;
@@ -163,7 +180,7 @@ case "$command" in
         status
         ;;
     *)
-        echo "Usage: $0 [check|service <service> <action>|backup-all <services>|remote <action>|schedule|unschedule|status]" >&2
+        echo "Usage: $0 [check|service <service> <action>|update <service>|backup-all <services>|remote <action>|schedule|unschedule|status]" >&2
         exit 1
         ;;
 esac

@@ -13,6 +13,8 @@ Service actions (replace <service> with one of the services below):
   make backup-<service>         - Create a backup of the service
   make restore-<service>        - Restore the newest backup of the service
                                   (BACKUP=<file> to restore a given one)
+  make update-<service>         - Backup and update to the image versions of
+                                  the repository
 
 Services:
   vpn                           - WireGuard + WGDashboard

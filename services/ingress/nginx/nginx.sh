@@ -10,6 +10,16 @@ nginx_proxy_deployment_docker(){
     docker compose -p "$NGINX_PROXY_COMPOSE_PROJECT" -f "$NGINX_PROXY_FOLDER/docker-compose.yml" up -d
 }
 
+# Pull the images of the compose file and recreate the containers that changed
+nginx_proxy_update_docker(){
+    docker compose \
+        -p "$NGINX_PROXY_COMPOSE_PROJECT" \
+        -f "$NGINX_PROXY_FOLDER/docker-compose.yml" \
+        pull || exit 1
+
+    nginx_proxy_deployment_docker
+}
+
 nginx_proxy_stop_docker(){
     docker compose \
         -p "$NGINX_PROXY_COMPOSE_PROJECT" \

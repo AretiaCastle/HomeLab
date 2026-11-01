@@ -2,7 +2,7 @@
 # The image includes WireGuard, the host only needs the wireguard kernel module.
 services:
   wgdashboard:
-    image: ghcr.io/wgdashboard/wgdashboard:latest
+    image: ghcr.io/wgdashboard/wgdashboard:v4.3.4
     restart: unless-stopped
     container_name: wgdashboard
     ports:

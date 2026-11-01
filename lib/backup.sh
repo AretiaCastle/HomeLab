@@ -7,7 +7,7 @@
 #   export-<timestamp>.<ext>    Optional application export (portable)
 # Each file has its <file>.sha256 next to it.
 
-BACKUP_HELPER_IMAGE="alpine:latest"
+BACKUP_HELPER_IMAGE="alpine:3.24.3"
 
 backup_timestamp(){
     date +%Y%m%d_%H%M%S

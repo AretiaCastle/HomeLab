@@ -1,6 +1,6 @@
 services:
   fireflyiii_core:
-    image: fireflyiii/core:latest
+    image: fireflyiii/core:version-6.7.9
     hostname: fireflyiii_core
     container_name: fireflyiii_core
     restart: always
@@ -14,7 +14,7 @@ services:
       - fireflyiii_db
 
   fireflyiii_db:
-    image: mariadb:lts
+    image: mariadb:12.3.3
     hostname: fireflyiii_db
     container_name: fireflyiii_db
     restart: always
@@ -28,7 +28,7 @@ services:
     # To make this work, set STATIC_CRON_TOKEN in your .env file or as an environment variable
     # The STATIC_CRON_TOKEN must be *exactly* 32 characters long
     #
-    image: alpine
+    image: alpine:3.24.3
     restart: always
     container_name: fireflyiii_cron
     env_file:

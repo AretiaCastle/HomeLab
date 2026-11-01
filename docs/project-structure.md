@@ -60,6 +60,7 @@ Each `services/<service>/<service>.sh` receives one action:
 | `clean`   | `make clean-<service>`   |
 | `backup`  | `make backup-<service>`  |
 | `restore` | `make restore-<service>` |
+| `update`  | `make update-<service>`  |
 
 The service script sources the scripts of its tools and delegates each action
 to them. Docker based tools run their own compose file as an independent

@@ -36,6 +36,19 @@ pihole_deploy_docker(){
         up -d
 }
 
+# Pull the images of the compose file and recreate the containers that changed
+pihole_update_docker(){
+    check_pihole_env_files || exit 1
+
+    docker compose \
+        -p "$PIHOLE_COMPOSE_PROJECT" \
+        --project-directory "$PIHOLE_FOLDER" \
+        -f "$PIHOLE_FOLDER/docker-compose.yml" \
+        pull || exit 1
+
+    pihole_deploy_docker
+}
+
 pihole_stop_docker(){
     docker compose \
         -p "$PIHOLE_COMPOSE_PROJECT" \

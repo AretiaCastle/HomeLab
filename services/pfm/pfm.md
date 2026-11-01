@@ -27,6 +27,15 @@ make restore-pfm                                  # Newest cold copy
 make restore-pfm BACKUP=export-<timestamp>.tar.gz # Import an export
 ```
 
+### Update
+
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
+
+```shell
+make update-pfm
+```
+
 ### Web browser interfaces
 
 - [Firefly III](http://localhost:10101)

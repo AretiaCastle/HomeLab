@@ -36,6 +36,7 @@ make stop-<service>      # Stop
 make clean-<service>     # Stop and remove containers and volumes
 make backup-<service>    # Create a backup
 make restore-<service>   # Restore the newest backup
+make update-<service>    # Backup and update to the repository image versions
 ```
 
 Backups of all the services deployed on the host can be scheduled with
@@ -56,6 +57,7 @@ Run `make help` for the full list of targets.
 - [Architecture](docs/architecture.md): deployment, networking and ports.
 - [Backups](docs/backups.md): backup types, restore, retention, remote copy
   and scheduling.
+- [Updates](docs/updates.md): image versions, updates and rollback.
 - [Project structure](docs/project-structure.md): layout, environment files and
   how to add a service.
 

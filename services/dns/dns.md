@@ -46,6 +46,15 @@ make restore-dns                              # Newest cold copy
 make restore-dns BACKUP=export-<timestamp>.zip # Import a Teleporter export
 ```
 
+### Update
+
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
+
+```shell
+make update-dns
+```
+
 ### Web browser interfaces
 
 - [Pi-hole](http://localhost:10081/admin)

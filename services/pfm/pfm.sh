@@ -24,6 +24,10 @@ pfm_restore(){
     fireflyiii_restore_backup_docker "$1"
 }
 
+pfm_update(){
+    fireflyiii_update_docker
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -42,8 +46,11 @@ case "$action" in
 	restore)
 		pfm_restore "$2"
 		;;
+	update)
+		pfm_update
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
 		exit 1
 		;;
 esac

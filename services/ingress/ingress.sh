@@ -24,6 +24,10 @@ ingress_restore(){
 	nginx_proxy_restore_docker "$1"
 }
 
+ingress_update(){
+	nginx_proxy_update_docker
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -42,8 +46,11 @@ case "$action" in
 	restore)
 		ingress_restore "$2"
 		;;
+	update)
+		ingress_update
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
 		exit 1
 		;;
 esac

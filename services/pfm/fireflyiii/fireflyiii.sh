@@ -47,6 +47,19 @@ fireflyiii_deploy_docker(){
         up -d
 }
 
+# Pull the images of the compose file and recreate the containers that changed
+fireflyiii_update_docker(){
+    check_fireflyiii_env_files || exit 1
+
+    docker compose \
+        -p "$FIREFLYIII_COMPOSE_PROJECT" \
+        --project-directory "$FIREFLYIII_FOLDER" \
+        -f "$FIREFLYIII_FOLDER/docker-compose.yml" \
+        pull || exit 1
+
+    fireflyiii_deploy_docker
+}
+
 fireflyiii_stop_docker(){
     docker compose \
         -p "$FIREFLYIII_COMPOSE_PROJECT" \

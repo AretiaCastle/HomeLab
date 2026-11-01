@@ -24,6 +24,10 @@ external_ddns_restore(){
 	echo "External DDNS has no data to restore, skipping restore"
 }
 
+external_ddns_update(){
+	duckdns_update_docker
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -42,8 +46,11 @@ case "$action" in
 	restore)
 		external_ddns_restore "$2"
 		;;
+	update)
+		external_ddns_update
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
 		exit 1
 		;;
 esac

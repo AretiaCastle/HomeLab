@@ -42,4 +42,13 @@ make logs CONTAINER=duckdns
 There is nothing to back up: the service has no persistent data and its
 configuration is the `duckdns/.env.duckdns` file.
 
+### Update
+
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
+
+```shell
+make update-external_ddns
+```
+
 ---

@@ -2,7 +2,7 @@
 # Updates the public IP of the subdomains every 5 minutes.
 services:
   duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
+    image: lscr.io/linuxserver/duckdns:8aabc87c-ls95
     container_name: duckdns
     restart: unless-stopped
     env_file:

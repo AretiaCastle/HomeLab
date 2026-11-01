@@ -24,6 +24,10 @@ dns_restore(){
     pihole_restore_backup_docker "$1"
 }
 
+dns_update(){
+    pihole_update_docker
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -42,8 +46,11 @@ case "$action" in
 	restore)
 		dns_restore "$2"
 		;;
+	update)
+		dns_update
+		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
 		exit 1
 		;;
 esac
