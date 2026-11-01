@@ -18,30 +18,26 @@ docker compose up -d
 
 ### Backup and restore
 
-#### Docker Compose
-
-- [Community solution](https://gist.github.com/ddyykk/84bc588d6de1d346fbf473af49c34cf0)
-
-Remember to run this commands on a user with access to Docker.
-
-Make backup.
+Besides the cold copy of its volumes, the backup includes an export with a
+database dump and the uploads directory. See [backups](../../docs/backups.md).
 
 ```shell
-wget https://gist.githubusercontent.com/ddyykk/84bc588d6de1d346fbf473af49c34cf0/raw/dfcb787a7f6fb17193f3a56bdfd7683476e6abbb/backup_firefly_docker.sh
-chmod +x backup_firefly_docker.sh
-./backup_firefly_docker.sh
+make backup-pfm
+make restore-pfm                                  # Newest cold copy
+make restore-pfm BACKUP=export-<timestamp>.tar.gz # Import an export
 ```
 
-Restore backup.
+### Update
+
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
 
 ```shell
-wget https://gist.githubusercontent.com/ddyykk/84bc588d6de1d346fbf473af49c34cf0/raw/dfcb787a7f6fb17193f3a56bdfd7683476e6abbb/restore_firefly_docker.sh
-chmod +x restore_firefly_docker.sh
-./restore_firefly_docker.sh ./firefly_backups/backup.tar.gz
+make update-pfm
 ```
 
 ### Web browser interfaces
 
-- [Firefly III](http://localhost)
+- [Firefly III](http://localhost:10101)
 
 ---

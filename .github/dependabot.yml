@@ -1,0 +1,14 @@
+# Pull requests with new versions of the images of the compose files
+version: 2
+updates:
+  - package-ecosystem: "docker-compose"
+    directories:
+      - "/services/dns/pihole"
+      - "/services/external_ddns/duckdns"
+      - "/services/ingress/nginx"
+      - "/services/pfm/fireflyiii"
+      - "/services/vpn/wgdashboard"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"

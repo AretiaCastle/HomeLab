@@ -1,28 +1,25 @@
 # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
   pihole:
+    image: pihole/pihole:2026.10.1
+    hostname: pihole
     container_name: pihole
-    image: pihole/pihole:latest
+    restart: unless-stopped
     ports:
       # DNS Ports
-      - "53:53/tcp"
-      - "53:53/udp"
-      # Default HTTP Port
-      - "80:80/tcp"
-      # Default HTTPs Port. FTL will generate a self-signed certificate
-      - "443:443/tcp"
-    environment:
-      TZ: '${TZ}'
-      WEBPASSWORD: '${WEBPASSWORD}'
-      FTLCONF_webserver_api_password: '${FTLCONF_webserver_api_password}'
-      FTLCONF_dns_listeningMode: 'ALL'
+      - "$PIHOLE_DNS_PORT:53/tcp"
+      - "$PIHOLE_DNS_PORT:53/udp"
+      # Web interface. Ports 80 and 443 are left to the ingress service
+      - "$PIHOLE_WEB_INTERFACE_PORT:80/tcp"
     volumes:
-      - ./etc-pihole:/etc/pihole
-      - ./etc-dnsmasq.d:/etc/dnsmasq.d
-    healthcheck:
-      test: ["CMD", "dig", "@127.0.0.1", "pi.hole"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    network_mode: host
+      - pihole_etc:/etc/pihole
+    env_file:
+      - ./.env.pihole
+
+volumes:
+  pihole_etc:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "$PIHOLE_ETC_PATH"

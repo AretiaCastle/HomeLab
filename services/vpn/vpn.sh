@@ -1,30 +1,31 @@
 #!/bin/bash
 
 VPN_SERVICE_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-source "$VPN_SERVICE_FOLDER/wireguard/wireguard.sh"
+source "$VPN_SERVICE_FOLDER/../../lib/backup.sh"
 source "$VPN_SERVICE_FOLDER/wgdashboard/wgdashboard.sh"
 
 vpn_deploy(){
-	wireguard_baremetal_deployment
-	wgdashboard_baremetal_deployment
+	wgdashboard_deploy_docker
 }
 
 vpn_stop(){
-    wireguard_stop
-    wgdashboard_stop
+	wgdashboard_stop_docker
 }
 
 vpn_clean(){
-    wireguard_clean
-    wgdashboard_clean
+	wgdashboard_clean_docker
 }
 
 vpn_backup(){
-    echo "TODO: implement VPN backup"
+	wgdashboard_backup_docker
 }
 
 vpn_restore(){
-    echo "TODO: implement VPN restore"
+	wgdashboard_restore_docker "$1"
+}
+
+vpn_update(){
+	wgdashboard_update_docker
 }
 
 action="${1:-deploy}"
@@ -43,10 +44,13 @@ case "$action" in
 		vpn_backup
 		;;
 	restore)
-		vpn_restore
+		vpn_restore "$2"
+		;;
+	update)
+		vpn_update
 		;;
 	*)
-		echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+		echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
 		exit 1
 		;;
 esac

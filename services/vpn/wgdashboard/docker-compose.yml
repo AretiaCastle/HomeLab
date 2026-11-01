@@ -1,20 +1,26 @@
+# More info at https://docs.wgdashboard.dev/install/Docker.html
+# The image includes WireGuard, the host only needs the wireguard kernel module.
 services:
   wgdashboard:
-    image: ghcr.io/wgdashboard/wgdashboard:latest
+    image: ghcr.io/wgdashboard/wgdashboard:v4.3.4
     restart: unless-stopped
     container_name: wgdashboard
-
     ports:
-      - "${WGDASHBOARD_WEB_INTERFACE_PORT}:${WGDASHBOARD_WEB_INTERFACE_PORT}/tcp"
-      - "${WGDASHBOARD_VPN_PORT}:${WGDASHBOARD_VPN_PORT}/udp"
-
+      # Web interface
+      - "${WGDASHBOARD_WEB_INTERFACE_PORT}:10086/tcp"
+      # WireGuard
+      - "${WGDASHBOARD_VPN_PORT}:51820/udp"
     volumes:
       - aconf:/etc/amnezia/amneziawg
       - conf:/etc/wireguard
       - data:/data
-
+    env_file:
+      - ./.env.wgdashboard
     cap_add:
       - NET_ADMIN
+    # Route the VPN clients traffic through the container
+    sysctls:
+      - net.ipv4.ip_forward=1
 
 volumes:
   aconf:

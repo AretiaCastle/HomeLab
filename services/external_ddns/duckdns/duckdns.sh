@@ -1,35 +1,53 @@
 #!/bin/bash
 
-duck_dns_configuration(){
-    # Validate required variables
-    if [[ -z "$duckdns_domain" || -z "$duckdns_token" ]]; then
-        echo "ERROR: duckdns_domain and duckdns_token must be set in .env file" >&2
+DUCKDNS_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+DUCKDNS_COMPOSE_PROJECT="${PROJECT}-duckdns"
+DUCKDNS_ENV_FILE="$DUCKDNS_FOLDER/.env.duckdns"
+
+check_duckdns_env_files(){
+    if [[ ! -f "$DUCKDNS_ENV_FILE" ]]; then
+        echo "ERROR: missing file $DUCKDNS_ENV_FILE" >&2
         return 1
     fi
-    
-    duckdns_deployment_folder_path="$DEPLOYMENTS_BASE_PATH/duckdns"
-    mkdir -p "$duckdns_deployment_folder_path"
 
-    echo "echo url='https://www.duckdns.org/update?domains=$duckdns_domain&token=$duckdns_token&ip=' | curl -k -o $duckdns_deployment_folder_path/duck.log -K -" > "$duckdns_deployment_folder_path/duck.sh"
-    chmod +x "$duckdns_deployment_folder_path/duck.sh"
-
-    # Create cron task - update IP every 5 minutes
-    local cron_filepath="${CRON_FILEPATH:-/etc/crontab}"
-    cron_header="# Duck DNS IP update"
-    cron_task="*/5 *    * * *   $USER    $duckdns_deployment_folder_path/duck.sh >/dev/null 2>&1"
-
-    if ! sudo grep -Fqx "$cron_header" "$cron_filepath"; then
-        echo "$cron_header" | sudo tee -a "$cron_filepath" > /dev/null
-    fi
-    if ! sudo grep -Fqx "$cron_task" "$cron_filepath"; then
-        echo "$cron_task" | sudo tee -a "$cron_filepath" > /dev/null
-    fi
+    return 0
 }
 
-duck_dns_stop(){
-    echo "TODO: implement DuckDNS stop"
+duckdns_deploy_docker(){
+    check_duckdns_env_files || exit 1
+
+    docker compose \
+        -p "$DUCKDNS_COMPOSE_PROJECT" \
+        --project-directory "$DUCKDNS_FOLDER" \
+        -f "$DUCKDNS_FOLDER/docker-compose.yml" \
+        up -d
 }
 
-duck_dns_clean(){
-    echo "TODO: implement DuckDNS clean"
+# Pull the images of the compose file and recreate the containers that changed
+duckdns_update_docker(){
+    check_duckdns_env_files || exit 1
+
+    docker compose \
+        -p "$DUCKDNS_COMPOSE_PROJECT" \
+        --project-directory "$DUCKDNS_FOLDER" \
+        -f "$DUCKDNS_FOLDER/docker-compose.yml" \
+        pull || exit 1
+
+    duckdns_deploy_docker
+}
+
+duckdns_stop_docker(){
+    docker compose \
+        -p "$DUCKDNS_COMPOSE_PROJECT" \
+        --project-directory "$DUCKDNS_FOLDER" \
+        -f "$DUCKDNS_FOLDER/docker-compose.yml" \
+        stop
+}
+
+duckdns_clean_docker(){
+    docker compose \
+        -p "$DUCKDNS_COMPOSE_PROJECT" \
+        --project-directory "$DUCKDNS_FOLDER" \
+        -f "$DUCKDNS_FOLDER/docker-compose.yml" \
+        down --volumes
 }

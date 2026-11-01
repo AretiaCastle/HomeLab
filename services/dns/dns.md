@@ -5,35 +5,58 @@ network level.
 
 ## Pi-hole
 
-- [Official Site](https://pi-hole)
-- [Official metal installation documentation](https://docs.pi-hole.net/main/basic-install/)
+- [Official Site](https://pi-hole.net)
 - [Official Docker installation documentation](https://github.com/pi-hole/docker-pi-hole)
-
-One the service is ready you can access the admin interface at
-`http://localhost/admin`
 
 ### Deployment
 
-#### Bare-metal deployment
+#### Docker Compose
+
+- [Deployment documentation](https://docs.pi-hole.net/docker/)
 
 ```shell
-curl -sSL https://install.pi-hole.net | bash
-sudo usermod -aG pihole "$USER"
+make dns
 ```
 
-#### Docker Compose deployment
+Ports 80 and 443 are left to the ingress service, the web interface is
+published on `PIHOLE_WEB_INTERFACE_PORT`.
 
-The `docker-compose.yml` file in this directory contains a service definition.
-Remenber to set the environment variables in a `.env` file.
+Port 53 must be free on the host. On systems with `systemd-resolved` disable
+its stub listener first:
 
 ```shell
-docker compose up -d
+sudo sed -r -i.orig 's/#?DNSStubListener=yes/DNSStubListener=no/g' /etc/systemd/resolved.conf
+sudo sh -c 'rm /etc/resolv.conf && ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf'
+sudo systemctl restart systemd-resolved
+```
+
+#### Bare-metal
+
+- [Installation documentation](https://docs.pi-hole.net/main/basic-install/)
+
+### Backup and restore
+
+Besides the cold copy of its volumes, the backup includes a Teleporter export
+(configuration, lists, groups, clients and DHCP leases, without the query log).
+See [backups](../../docs/backups.md).
+
+```shell
+make backup-dns
+make restore-dns                              # Newest cold copy
+make restore-dns BACKUP=export-<timestamp>.zip # Import a Teleporter export
 ```
 
 ### Update
 
-#### Bare-metal update
+Backup and update to the image versions of the repository. See
+[updates](../../docs/updates.md).
 
 ```shell
-pihole -up
+make update-dns
 ```
+
+### Web browser interfaces
+
+- [Pi-hole](http://localhost:10081/admin)
+
+---

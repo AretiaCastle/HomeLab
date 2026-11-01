@@ -27,6 +27,10 @@ torrent_restore(){
     echo "TODO: implement Torrent restore"
 }
 
+torrent_update(){
+    echo "TODO: implement Torrent update"
+}
+
 action="${1:-deploy}"
 
 case "$action" in
@@ -43,10 +47,13 @@ case "$action" in
         torrent_backup
         ;;
     restore)
-        torrent_restore
+        torrent_restore "$2"
+        ;;
+    update)
+        torrent_update
         ;;
     *)
-        echo "Usage: $0 [deploy|stop|clean|backup|restore]" >&2
+        echo "Usage: $0 [deploy|stop|clean|backup|restore|update]" >&2
         exit 1
         ;;
 esac

@@ -1,113 +1,71 @@
 # HomeLab
 
-Home services local deployment and management system.
+Deployment and management of the services of a home lab, driven by `make` and
+mostly based on docker compose.
 
-## Quick Start
+Services are independent from each other, so they can be deployed all on the
+same host or spread across several ones. See [architecture](docs/architecture.md).
 
-```bash
-# Copy global environment template
-cp .env.example .env
+## Services
 
-# Copy per-service templates (only for services you are going to use)
-cp services/dns/.env.example services/dns/.env
-cp services/external_ddns/.env.example services/external_ddns/.env
-cp services/ingress/.env.example services/ingress/.env
-cp services/vpn/.env.example services/vpn/.env
-cp services/pfm/.env.example services/pfm/.env
+| Service         | Tools                                        |
+| --------------- | -------------------------------------------- |
+| `vpn`           | WireGuard + WGDashboard                      |
+| `dns`           | Pi-hole                                      |
+| `ingress`       | Nginx Proxy Manager                          |
+| `external_ddns` | Duck DNS                                     |
+| `pfm`           | Firefly III                                  |
+| `torrent`       | qBittorrent, Jackett, Sonarr, Radarr (WIP)   |
+| `drive`         | Nextcloud (WIP)                              |
 
-# Edit with your configuration
-nano .env
-nano services/ingress/.env
-
-# Check requirements
-make check
-
-# Deploy all services
-make deploy-all
-```
-
-## Environment Files
-
-HomeLab now uses layered environment files:
-
-- Global: `.env`
-- Per service: `services/<service>/.env`
-
-Load order and priority:
-
-1. `.env` (required)
-2. `services/<service>/.env` (optional, overrides global values)
-
-`make` loads both files before executing each service script.
-
-This allows shared variables (paths, project name) in the global file and service-specific settings in each service file.
-
-## Available Services
-
-- **DNS**: PiHole + Dynamic DNS (Duck DNS)
-- **Ingress**: Nginx reverse proxy with SSL
-- **VPN**: Wireguard + Web Dashboard
-- **Media**: Torrent stack (qBittorrent, Sonarr, Radarr, Jackett)
-- **Finance**: Firefly III personal finance manager
+Each service has its own documentation in `services/<service>/<service>.md`.
 
 ## Usage
 
-See all available commands:
+Requirements: `docker`, `curl` and `git`. Check them with:
 
 ```bash
-make help
+make check
 ```
 
-Deploy specific services:
+Every service has the same set of actions:
 
 ```bash
-make dns        # Deploy PiHole
-make ingress    # Deploy Nginx
-make vpn        # Deploy Wireguard
-make torrent    # Deploy media stack
+make <service>           # Deploy
+make stop-<service>      # Stop
+make clean-<service>     # Stop and remove containers and volumes
+make backup-<service>    # Create a backup
+make restore-<service>   # Restore the newest backup
+make update-<service>    # Backup and update to the repository image versions
 ```
 
-Deploy predefined groups:
+Backups of all the services deployed on the host can be scheduled with
+`make schedule-backups` and copied to a remote host such as a NAS.
+
+For example:
 
 ```bash
-make deploy-network   # DNS + Ingress + VPN
-make deploy-media     # Torrent stack
-make deploy-finance   # Firefly III
+make vpn
+make dns
+make ingress
 ```
 
-Management commands:
+Run `make help` for the full list of targets.
 
-```bash
-make status           # View container status
-make logs-dns         # View PiHole logs
-make stop             # Stop all services
-make clean            # Stop and remove containers
-```
+## Documentation
 
-## Project Structure
-
-```text
-HomeLab/
-├── makefile              # Main deployment orchestration
-├── .env                  # Environment configuration (create from .env.example)
-├── requirements.txt      # Required system commands
-├── help.txt             # Command reference
-├── logs/                # Deployment logs
-└── services/            # Service definitions (deployment + docs)
-    ├── dns/
-    ├── ingress/
-    ├── personal_finance_manager/
-    ├── torrent/
-    └── vpn/
-```
-
-See [SERVICES_STRUCTURE.md](SERVICES_STRUCTURE.md) for detailed service organization.
+- [Architecture](docs/architecture.md): deployment, networking and ports.
+- [Backups](docs/backups.md): backup types, restore, retention, remote copy
+  and scheduling.
+- [Updates](docs/updates.md): image versions, updates and rollback.
+- [Project structure](docs/project-structure.md): layout, environment files and
+  how to add a service.
 
 ---
 
 ## LICENSE
 
-This software is licensed under Creative Common
+This software is licensed under Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International. You may not use this
 software except in compliance with this license.
 
@@ -116,5 +74,5 @@ under the License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
-home_services © 2025 by Hugo Pascual Adán and Inés Garrido Lozano is licensed
-under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International.
+HomeLab © 2025 by Hugo Pascual Adán is licensed under Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International.
