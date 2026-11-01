@@ -35,6 +35,9 @@ Guidelines for AI agents working on this repository. Read
   configurable (`"${X_WEB_INTERFACE_PORT}:<container port>"`).
 - Files owned by other users (e.g. databases) are read or written from a helper
   container, not with `sudo`.
+- Volume directories are created empty with `mkdir -p`, without `sudo`. On the
+  first mount Docker copies into the empty volume the image directory with its
+  owner, so containers that do not run as root can write on it.
 
 ## Ports
 

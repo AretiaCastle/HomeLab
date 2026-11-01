@@ -35,10 +35,11 @@ load_fireflyiii_env(){
 }
 
 fireflyiii_deploy_docker(){
-    # FireflyIII
+    check_fireflyiii_env_files || exit 1
+
     mkdir -p "$FIREFLYIII_UPLOAD_PATH"
     mkdir -p "$FIREFLYIII_DB_PATH"
-    
+
     docker compose \
         -p "$FIREFLYIII_COMPOSE_PROJECT" \
         --project-directory "$FIREFLYIII_FOLDER" \
