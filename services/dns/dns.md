@@ -6,7 +6,6 @@ network level.
 ## Pi-hole
 
 - [Official Site](https://pi-hole.net)
-- [Official metal installation documentation](https://docs.pi-hole.net/main/basic-install/)
 - [Official Docker installation documentation](https://github.com/pi-hole/docker-pi-hole)
 
 ### Deployment
@@ -33,10 +32,7 @@ sudo systemctl restart systemd-resolved
 
 #### Bare-metal
 
-```shell
-curl -sSL https://install.pi-hole.net | bash
-sudo usermod -aG pihole "$USER"
-```
+- [Installation documentation](https://docs.pi-hole.net/main/basic-install/)
 
 ### Backup and restore
 
@@ -48,21 +44,6 @@ See [backups](../../docs/backups.md).
 make backup-dns
 make restore-dns                              # Newest cold copy
 make restore-dns BACKUP=export-<timestamp>.zip # Import a Teleporter export
-```
-
-### Update
-
-#### Docker Compose
-
-```shell
-docker compose pull pihole
-make dns
-```
-
-#### Bare-metal
-
-```shell
-pihole -up
 ```
 
 ### Web browser interfaces
