@@ -30,6 +30,8 @@ Every file has its `<file>.sha256`, checked before any restore.
 | `vpn`     | WGDashboard         | ✅        | —                               |
 | `pfm`     | Firefly III         | ✅        | Database dump + uploads (`.tar.gz`) |
 
+`external_ddns` (Duck DNS) has no persistent data, so it has no backups.
+
 Tools that are not deployed on the host are skipped.
 
 ## Usage

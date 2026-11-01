@@ -12,64 +12,34 @@ services using a consistent domain name.
 
 ### Deployment
 
-#### Bare-metal deployment
+#### Docker Compose
 
-Installation via linux cron. For this you need first `cron` and `curl`
-installed. Test it with:
+- [Deployment documentation](https://docs.linuxserver.io/images/docker-duckdns/)
 
-```bash
-ps -ef | grep cr[o]n
+Create the subdomain in the DuckDNS website and set it, together with the
+account token, in `duckdns/.env.duckdns`.
+
+```shell
+make external_ddns
 ```
 
-```bash
-curl --version
+The container updates the subdomains with the public IP of the host network
+every 5 minutes. It does not publish any port, so it can run on any host of the
+network.
+
+Check the updates in its logs:
+
+```shell
+make logs CONTAINER=duckdns
 ```
 
-Now let's install it:
+#### Bare-metal
 
-```bash
-mkdir duckdns
-cd duckdns
-vi duck.sh
-```
+- [Installation documentation](https://www.duckdns.org/install.jsp)
 
-Copy and paste the following code into `duck.sh`, replacing `your-domain`
-and `your-token` with your actual DuckDNS domain and token:
+### Backup and restore
 
-```bash
-export duckdns_token="your-token"
-export duckdns_domain="your-domain"
-echo url="https://www.duckdns.org/update?domains=${duckdns_domain}&token=${duckdns_token}&ip=" | curl -k -o ~/duckdns/duck.log -K -
-```
+There is nothing to back up: the service has no persistent data and its
+configuration is the `duckdns/.env.duckdns` file.
 
-Make the script executable:
-
-```bash
-chmod +x duck.sh
-```
-
-Edit your crontab to run the script every 5 minutes:
-
-```bash
-crontab -e
-```
-
-Add the following line to the crontab file:
-
-```text
-*/5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1
-```
-
-Execute the script once to verify it works:
-
-```bash
-~/duckdns/duck.sh
-```
-
-Check the log file to see if the update was successful:
-
-```bash
-cat ~/duckdns/duck.log
-```
-
-You should see a response `OK` indicating whether the update was successful.
+---
