@@ -74,4 +74,56 @@ width="350"
 style="display: block; margin: 0 auto;"
 />
 
+### Network configuration
+
+By default the services are only reachable from the home network and through
+the [VPN](../vpn/vpn.md). Exposing them to the internet is optional.
+
+#### Internal access (default)
+
+No router changes are needed: ports 80 and 443 are not forwarded.
+
+Each proxy host domain must resolve to the LAN IP of the ingress host. Add a
+local DNS record for each domain in the [DNS service](../dns/dns.md) (Pi-hole
+local DNS records), e.g. `firefly.home.arpa` pointing to the ingress host.
+`home.arpa` is the domain reserved for home networks.
+
+The devices of the home network and the VPN clients (with `global_dns` pointing
+to Pi-hole) resolve those domains and reach the services through the proxy.
+
+#### Access from the internet (optional)
+
+Every exposed service can be reached by anyone, so only expose those that need
+it and keep the rest internal or behind the VPN.
+
+1. **Fixed IP and public IP**: reserve the LAN IP of the ingress host in the
+   router and check the ISP does not use CGNAT, as described in the
+   [VPN network configuration](../vpn/vpn.md#network-configuration) (steps 1
+   and 2).
+
+2. **Port forwarding**: forward TCP ports 80 and 443 to the LAN IP of the
+   ingress host. Never forward the administration panel (10083) nor the ports
+   published by the services, all the traffic must go through the proxy.
+
+    | Protocol | External port | Internal IP           | Internal port |
+    | -------- | ------------- | --------------------- | ------------- |
+    | TCP      | 80            | LAN IP of the ingress | 80            |
+    | TCP      | 443           | LAN IP of the ingress | 443           |
+
+3. **Public domain**: use the domain kept up to date by the
+   [external DDNS service](../external_ddns/external_ddns.md). DuckDNS also
+   resolves the subdomains of yours, so each service can have its own
+   (e.g. `firefly.<your-subdomain>.duckdns.org`) with a single DDNS entry.
+
+4. **Proxy host**: create a proxy host for the public domain as described
+   above. To limit who can use it, add an Access List in Nginx Proxy Manager
+   (allowed IPs or user and password) to the proxy host.
+
+5. **Access from the home network**: to use the public domain also from home,
+   add a Pi-hole local DNS record pointing it to the LAN IP of the ingress host.
+   Otherwise it depends on the router supporting NAT loopback.
+
+6. **Verification**: from outside the home network (e.g. mobile data) open
+   `http://<public domain>`.
+
 ---
